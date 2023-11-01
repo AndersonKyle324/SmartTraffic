@@ -1,37 +1,42 @@
 CC = g++
-CFLAGS = -Wall -Iinclude
-SRC_DIR = src
 INCLUDE_DIR = include
-BUILD_DIR = build
+CFLAGS = -Wall -Werror -I$(INCLUDE_DIR)
+SRC_DIR = src
 BIN_DIR = bin
 
 # Find all .cpp and .c files in the src directory
 SRCS := $(wildcard $(SRC_DIR)/*.cpp $(SRC_DIR)/*.c)
 
-# Generate corresponding .o paths in the build directory
-OBJS := $(patsubst $(SRC_DIR)/%,$(BUILD_DIR)/%,$(SRCS:.cpp=.o))
+# Generate corresponding .o paths in the bin directory
+OBJS := $(patsubst $(SRC_DIR)/%,$(BIN_DIR)/%,$(SRCS:.cpp=.o))
 OBJS := $(OBJS:.c=.o)
+
+REG_OBJS := $(filter-out $(BIN_DIR)/SmartTrafficTest.o,$(OBJS))
+TEST_OBJS := $(filter-out $(BIN_DIR)/SmartTraffic.o,$(OBJS))
 
 # Set the target executable name
 TARGET = $(BIN_DIR)/SmartTraffic.exe
+TEST_TARGET = $(BIN_DIR)/tests.exe
 
-$(TARGET): $(OBJS)
+all: $(TARGET)
+
+$(TARGET): $(REG_OBJS)
 	$(CC) $(CFLAGS) -o $@ $^
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	$(CC) $(CFLAGS) -c -o $@ $<
+tests: $(TEST_TARGET)
+	@./$(TEST_TARGET)
 
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
-	$(CC) $(CFLAGS) -c -o $@ $<
+$(TEST_TARGET): $(TEST_OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
 
-# Ensure the build directory exists before compiling
-$(OBJS): | $(BUILD_DIR)
+$(OBJS): $(BIN_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BIN_DIR)
+	$(CC) $(CFLAGS) -o $@ -c $<
 
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
 
 # Clean up all generated files
 clean:
-	rm -rf $(BUILD_DIR) $(BIN_DIR)
+	rm -rf $(BIN_DIR)
 
 .PHONY: clean

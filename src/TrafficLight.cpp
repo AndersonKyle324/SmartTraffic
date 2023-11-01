@@ -3,10 +3,23 @@
 
 #include "TrafficLight.h"
 
+TrafficLight::TrafficLight(AvailableColors aOnColor, int onColorDur, int redDur){
+    TrafficLight();
+
+    std::cout << "aOnColor:" << aOnColor;
+    onColor = aOnColor;
+    setDuration(aOnColor, onColorDur);
+    setDuration(red, redDur);
+}
+
 TrafficLightLeft::TrafficLightLeft(){
     TrafficLight();
 
     onColor = greenLeft;
+}
+
+TrafficLightLeft::TrafficLightLeft(int onDur, int redDur){
+    TrafficLight(greenLeft, onDur, redDur);
 }
 
 void TrafficLight::start(){

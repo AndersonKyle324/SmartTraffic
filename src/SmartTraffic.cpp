@@ -1,12 +1,10 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "Intersection.h"
 #include "TrafficLight.h"
 
 int main(int argc, char *argv[]){
     TrafficLightLeft tl = TrafficLightLeft();
-    Intersection inter = Intersection();
     
     // std::cout << tl.getColor();
 

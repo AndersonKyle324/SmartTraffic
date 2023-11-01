@@ -32,6 +32,8 @@ public:
      */
     TrafficLight(): color(red), durationRemaining(-1), colorDuration{0, 0, 0, yellowDuration, -1} {};
 
+    TrafficLight(AvailableColors aOnColor, int onColorDur, int redDur);
+
     friend class Intersection; ///< Friend class Intersection.
 
     /**
@@ -55,6 +57,13 @@ public:
     AvailableColors nextState();
 
     /**
+     * @brief Get the Duration Remaining
+     * 
+     * @return durationRemaining
+     */
+    int getDurationRemaining(){ return durationRemaining; };
+
+    /**
      * @brief Gets the duration for a specific color.
      *
      * @param durColor The color for which to get the duration.
@@ -68,6 +77,13 @@ public:
      * @return The current color.
      */
     AvailableColors getColor(){ return color; };
+
+    /**
+     * @brief Gets the onColor of the traffic light.
+     *
+     * @return The onColor.
+     */
+    AvailableColors getOnColor(){ return onColor; };
 
     /**
      * @brief Sets the duration remaining to the duration for the current color.
@@ -109,7 +125,7 @@ public:
     }
 
     static bool isValidColor(const AvailableColors& aColor){
-        if(aColor < 0 || aColor > numColors){
+        if(aColor < 0 || aColor >= numColors){
             throw std::out_of_range("Unexpected color");
             return false;
         }
@@ -165,6 +181,14 @@ public:
      * Calls parent consructor for TrafficLight and sets the onColor to greenLeft.
      */
     TrafficLightLeft();
+
+    /**
+     * @brief Construct a new Traffic Light Left object. Setting onColor to greenLeft and
+     * greenLefts duration to "onDur".
+     * 
+     * @param onDur duration to be set to greenLeft
+     */
+    TrafficLightLeft(int onDur, int redDur);
 
 };
 
