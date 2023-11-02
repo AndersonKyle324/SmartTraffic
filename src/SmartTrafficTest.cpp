@@ -69,12 +69,15 @@ TEST_CASE("TC_3-1_TF_nextState"){
 }
 
 TEST_CASE("TC_4-1_TF_TrafficLightLeft"){
-    int onColorDur = 1;
-    int redDur = 2;
-    TrafficLightLeft tf = TrafficLightLeft(onColorDur, redDur);
+    int onColorDur = 4;
+    int redDur = 5;
+    TrafficLight tf = TrafficLight(TrafficLight::greenLeft, onColorDur, redDur);
 
     CHECK(tf.getColor() == TrafficLight::red);
     CHECK(tf.getOnColor() == TrafficLight::greenLeft);
     CHECK(tf.getColorDuration(TrafficLight::greenLeft) == onColorDur);
     CHECK(tf.getColorDuration(TrafficLight::red) == redDur);
+    CHECK(tf.getColorDuration(TrafficLight::green) == 0);
+    CHECK(tf.getColorDuration(TrafficLight::greenRight) == 0);
+    CHECK(tf.getColorDuration(TrafficLight::yellow) == tf.yellowDuration);
 }
