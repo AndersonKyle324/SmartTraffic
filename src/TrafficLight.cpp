@@ -13,7 +13,7 @@ TrafficLightLeft::TrafficLightLeft(){
     onColor = greenLeft;
 }
 
-TrafficLightLeft::TrafficLightLeft(int onDur, int redDur) : TrafficLight(greenLeft, onDur, redDur){}
+TrafficLightLeft::TrafficLightLeft(int leftDur, int redDur) : TrafficLight(greenLeft, leftDur, redDur){}
 
 void TrafficLight::start(){
     setColor(onColor);

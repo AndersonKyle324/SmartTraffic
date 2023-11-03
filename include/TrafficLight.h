@@ -32,6 +32,13 @@ public:
      */
     TrafficLight(): color(red), durationRemaining(-1), colorDuration{0, 0, 0, yellowDuration, -1} {};
 
+    /**
+     * @brief Construct a new Traffic Light object specifying color direction and durations
+     * 
+     * @param aOnColor   color direction of onColor
+     * @param onColorDur duration of the onColor
+     * @param redDur     duration of the red light
+     */
     TrafficLight(AvailableColors aOnColor, int onColorDur, int redDur);
 
     friend class Intersection; ///< Friend class Intersection.
@@ -43,16 +50,24 @@ public:
 
     /**
      * @brief Decreases the durationRemaining and updates the state of the TrafficLight.
+     * 
+     * If the durationRemaining is > 0, decrement durationRemaining. Then call nextState()
      *
      * @return The updated durationRemaining value.
+     *
+     * @warning if durationRemaining is negative, it will remain in the same state
      */
     int tick();
 
     /**
      * @brief Determines and sets the next state of the TrafficLight based on the current color and duration.
+     * 
+     * If the durationRemaining is 0, procede to the next state. 
      *
      * @return The new color of the TrafficLight.
+     * 
      * @throws std::out_of_range if TrafficLight reaches an unexpected color state.
+     * @warning if durationRemaining is negative, it will remain in the same state
      */
     AvailableColors nextState();
 
@@ -184,11 +199,11 @@ public:
 
     /**
      * @brief Construct a new Traffic Light Left object. Setting onColor to greenLeft and
-     * greenLefts duration to "onDur".
+     * greenLefts duration to "leftDur".
      * 
      * @param onDur duration to be set to greenLeft
      */
-    TrafficLightLeft(int onDur, int redDur);
+    TrafficLightLeft(int leftDur, int redDur);
 
 };
 
