@@ -7,7 +7,7 @@
 class Road{
 public:
     enum RoadDirection {north, east, south, west, numRoadDirections};
-    enum TurnOption {straight, left, right, numTurnOptions};
+    enum TurnOption {left, straight, right, numTurnOptions};
     /**
      * @brief Checks "dir" is within the allowable range of RoadDirection values
      * 
@@ -49,16 +49,17 @@ public:
      *  with a number of lanes greater than 0.
      * 
      * @param dir               Road direction
-     * @param numStraightLanes  Num straight lanes
-     * @param numLeftLanes      Num left turn lanes
-     * @param numRightLanes     Num right rutn lanes
+     * @param numLanesArr       Number of lanes for each TurnOption
      */
-    Road(RoadDirection dir, int numStraightLanes, int numLeftLanes, int numRightLanes);
+    Road(RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr);
     
     /**
      * @brief Destroy the Road object. Deletes all TrafficLights in lights array.
      */
     ~Road();
+
+    static RoadDirection roadClkwiseOf(RoadDirection dir);
+    static RoadDirection roadCounterClkwiseOf(RoadDirection dir);
 
     RoadDirection getDirection(){ return direction; };
     int getNumLanes(TurnOption opt);
@@ -73,8 +74,7 @@ protected:
     std::array<Road*, Road::numRoadDirections> roads;
     std::array<bool, Road::numRoadDirections> expectedRoads;
 
-    bool roadExists(Road::RoadDirection dir);
-    bool Intersection::newTurnIsPossible(int numNewLanes, Road::RoadDirection endRoadDir);
+    bool newTurnIsPossible(int numNewLanes, Road::RoadDirection endRoadDir);
 
 public:
     Intersection();
@@ -82,16 +82,25 @@ public:
     ~Intersection();
 
     /**
+     * @brief Checks if road at "dir" is currently present in this Intersection
+     * 
+     * @param dir direction of the road to check for
+     * @return true 
+     * @return false 
+     */
+    bool roadExists(Road::RoadDirection dir);
+
+    /**
      * @brief Creates new Road while checking to make sure it conforms with other Roads already present.
      * 
      * @param dir           The direction the road is facing when cars are at a stop
      * @param numLanesArr   The number of lanes for each TurnOption. Should be Road::numTurnOptions long.
-     * @return An integer representing success or a value representing a specific Intersection non-compliance error.
-     *       0 : Success
-     *       1 : Unknown error
+     * @return Success if road is added, else returns an IntersectionError value representing the specific error. 
      */
-    int addRoad(Road::RoadDirection dir, std::array<int, Road::numTurnOptions>& numLanesArr);
+    int addRoad(Road::RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr);
 
+    Road* getRoad(Road::RoadDirection dir);
+    bool roadIsExpected(Road::RoadDirection dir);
 };
 
 #endif

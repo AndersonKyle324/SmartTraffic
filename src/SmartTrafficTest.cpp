@@ -2,6 +2,7 @@
 #include "../doctest/doctest/doctest.h"
 
 #include "TrafficLight.h"
+#include "Intersection.h"
 
 TEST_CASE("TC_1_TF_start"){
     TrafficLightLeft tf = TrafficLightLeft();
@@ -149,4 +150,94 @@ TEST_CASE("TC_6-2_TF_tick_no_change"){
     CHECK(durRem == -1);
     CHECK(tf.getDurationRemaining() == -1);
     CHECK(tf.getColor() == TrafficLight::greenLeft);
+}
+
+TEST_CASE("TC_7-1_INT_addRoad"){
+    Intersection inter = Intersection();
+    int retVal;
+
+    /// Good first road
+    retVal = inter.addRoad(Road::north, {3, 4, 5});
+    CHECK(retVal == Intersection::success);
+    CHECK(inter.roadExists(Road::north) == true);
+    
+    CHECK(inter.roadIsExpected(Road::north) == false);
+    CHECK(inter.roadIsExpected(Road::east) == true);
+    CHECK(inter.roadIsExpected(Road::west) == true);
+    
+    CHECK(inter.getRoad(Road::north) != NULL);
+}
+
+TEST_CASE("TC_7-2_INT_addRoad_alreadyExists"){
+    Intersection inter = Intersection();
+    int retVal;
+
+    /// Good first road
+    retVal = inter.addRoad(Road::north, {3, 4, 5});
+    CHECK(retVal == Intersection::success);
+
+    /// Try the same road, should error
+    retVal = inter.addRoad(Road::north, {3, 4, 5});
+    CHECK(retVal == Intersection::alreadyExists);
+}
+
+TEST_CASE("TC_7-3_INT_addRoad_turnNotPossible"){
+    Intersection inter = Intersection();
+    int retVal;
+
+    /// Good north road
+    retVal = inter.addRoad(Road::north, {0, 3, 0});
+    CHECK(retVal == Intersection::success);
+    
+    /// Good south road
+    retVal = inter.addRoad(Road::south, {0, 4, 0});
+    CHECK(retVal == Intersection::success);
+
+    /// Try a road with too many right turns to North
+    retVal = inter.addRoad(Road::west, {0, 0, 4});
+    CHECK(retVal == Intersection::turnNotPossible);
+    
+    /// Try a road with too many left turns to North
+    retVal = inter.addRoad(Road::east, {4, 0, 0});
+    CHECK(retVal == Intersection::turnNotPossible);
+    
+    /// Try a road with too many left turns to South
+    retVal = inter.addRoad(Road::west, {5, 0, 0});
+    CHECK(retVal == Intersection::turnNotPossible);
+    
+    /// Try a road with too many left turns to North
+    retVal = inter.addRoad(Road::east, {0, 0, 5});
+    CHECK(retVal == Intersection::turnNotPossible);
+}
+
+TEST_CASE("TC_8-1_RD"){
+    int retVal;
+    Road rd = Road(Road::north, {1,2,3});
+
+    retVal = rd.getNumLanes(Road::left);
+    CHECK(retVal == 1);
+    retVal = rd.getNumLanes(Road::straight);
+    CHECK(retVal == 2);
+    retVal = rd.getNumLanes(Road::right);
+    CHECK(retVal == 3);
+
+    CHECK(rd.getLight(Road::left) != NULL);
+    CHECK(rd.getLight(Road::straight) != NULL);
+    CHECK(rd.getLight(Road::right) != NULL);
+}
+
+TEST_CASE("TC_8-1_RD"){
+    int retVal;
+    Road rd = Road(Road::north, {1,2,3});
+
+    retVal = rd.getNumLanes(Road::left);
+    CHECK(retVal == 1);
+    retVal = rd.getNumLanes(Road::straight);
+    CHECK(retVal == 2);
+    retVal = rd.getNumLanes(Road::right);
+    CHECK(retVal == 3);
+
+    CHECK(rd.getLight(Road::left) != NULL);
+    CHECK(rd.getLight(Road::straight) != NULL);
+    CHECK(rd.getLight(Road::right) != NULL);
 }
