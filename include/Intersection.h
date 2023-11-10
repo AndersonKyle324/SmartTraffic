@@ -58,8 +58,31 @@ public:
      */
     ~Road();
 
-    static RoadDirection roadClkwiseOf(RoadDirection dir);
-    static RoadDirection roadCounterClkwiseOf(RoadDirection dir);
+    /**
+     * @brief Gets the road direction to the right of "dir"
+     * 
+     * @param dir The starting direction
+     * @return The RoadDirection to the right of "dir"
+     */
+    static RoadDirection roadRightOf(RoadDirection dir);
+    
+    /**
+     * @brief Gets the road direction to the left of "dir"
+     * 
+     * @param dir The starting direction
+     * @return The RoadDirection to the left of "dir"
+     */
+    static RoadDirection roadLeftOf(RoadDirection dir);
+
+    /**
+     * @brief Gets the road direction across from "dir"
+     * 
+     * @param dir The starting direction
+     * @return The RoadDirection across from "dir"
+     */
+    static RoadDirection roadOppositeOf(RoadDirection dir);
+
+    int setAllLightDurations(int onDur, int redDur, int yellowDur=-1);
 
     RoadDirection getDirection(){ return direction; };
     int getNumLanes(TurnOption opt);
@@ -98,6 +121,8 @@ public:
      * @return Success if road is added, else returns an IntersectionError value representing the specific error. 
      */
     int addRoad(Road::RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr);
+
+    int setAllLightDurations(int onDur, int yellowDur=-1);
 
     Road* getRoad(Road::RoadDirection dir);
     bool roadIsExpected(Road::RoadDirection dir);

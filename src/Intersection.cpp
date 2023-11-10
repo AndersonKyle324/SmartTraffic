@@ -42,7 +42,8 @@ int Intersection::addRoad(Road::RoadDirection dir, std::array<int, Road::numTurn
         return alreadyExists;
     }
     
-    if( ! newTurnIsPossible(numLanesArr[Road::left], Road::roadClkwiseOf(dir)) || ! newTurnIsPossible(numLanesArr[Road::right], Road::roadCounterClkwiseOf(dir))){
+    if( ! newTurnIsPossible(numLanesArr[Road::left], Road::roadLeftOf(dir)) ||
+        ! newTurnIsPossible(numLanesArr[Road::right], Road::roadRightOf(dir))){
         return turnNotPossible;
     }
 
@@ -50,6 +51,20 @@ int Intersection::addRoad(Road::RoadDirection dir, std::array<int, Road::numTurn
     expectedRoads[dir] = false;     /// If we were expecting this road before, we now no longer are.
 
     return success;
+}
+
+int Intersection::setAllLightDurations(int onDur, int yellowDir){    
+    int numRoadsSet = 0;
+    int redDur = -1;
+    
+    for(Road* rd : roads){
+        if(rd != NULL){
+            rd->setAllLightDurations(onDur, redDur, yellowDir);
+        }
+        numRoadsSet++;
+    }
+    
+    return numRoadsSet;
 }
 
 Road* Intersection::getRoad(Road::RoadDirection dir){
@@ -91,26 +106,65 @@ Road::~Road(){
     }
 }
 
-Road::RoadDirection Road::roadClkwiseOf(RoadDirection dir){
-    int clkwiseDir = dir + 1;
+Road::RoadDirection Road::roadRightOf(RoadDirection dir){
+    int rightRoadDir = dir + 1;
 
-    if(clkwiseDir == numRoadDirections){
-        clkwiseDir = 0;
+    if(rightRoadDir == numRoadDirections){
+        rightRoadDir = 0;
     }
 
-    isValidRoadDirection((Road::RoadDirection&)clkwiseDir);
-    return (Road::RoadDirection)clkwiseDir;
+    isValidRoadDirection((Road::RoadDirection&)rightRoadDir);
+    return (Road::RoadDirection)rightRoadDir;
 }
 
-Road::RoadDirection Road::roadCounterClkwiseOf(RoadDirection dir){
-    int counterClkwiseDir = dir - 1;
+Road::RoadDirection Road::roadLeftOf(RoadDirection dir){
+    int leftRoadDir = dir - 1;
 
-    if(counterClkwiseDir < 0){
-        counterClkwiseDir = numRoadDirections - 1;
+    if(leftRoadDir < 0){
+        leftRoadDir = numRoadDirections - 1;
     }
 
-    isValidRoadDirection((Road::RoadDirection&)counterClkwiseDir);
-    return (Road::RoadDirection)counterClkwiseDir;
+    isValidRoadDirection((Road::RoadDirection&)leftRoadDir);
+    return (Road::RoadDirection)leftRoadDir;
+}
+
+Road::RoadDirection Road::roadOppositeOf(RoadDirection dir){
+    int halfRoads = numRoadDirections / 2;  /// This assumes numRoadDirections is even
+    RoadDirection tempRd = dir;
+
+    if(numRoadDirections % 2 != 0){
+        throw std::domain_error("Road::roadOppositeOf() is called with an odd-length Road::numRoadDirections");
+        /// Functionality is undefined when numRoadDirections is odd.
+    }
+
+    for(int i=0; i<halfRoads; i++){
+        tempRd = roadLeftOf(tempRd);
+    }
+
+    return tempRd;
+}
+
+int Road::setAllLightDurations(int onDur, int redDur, int yellowDur){
+    int numLightsSet = 0;
+
+    if(onDur < -1 || redDur < -1 || yellowDur < -1){
+        throw std::out_of_range("Road::setAllLightDurations has a duration < -1");
+        return 0;
+    }
+    
+    for(TrafficLight* tl : lights){
+        if(tl != NULL){
+            tl->setDuration(tl->getOnColor(), onDur);
+            tl->setDuration(TrafficLight::red, redDur);
+            if(yellowDur != -1){
+                tl->setDuration(TrafficLight::yellow, yellowDur);
+            }
+
+            numLightsSet++;
+        }
+    }
+
+    return numLightsSet;
 }
 
 int Road::getNumLanes(TurnOption opt){
