@@ -42,6 +42,7 @@ protected:
     RoadDirection direction;                                /// The compass direction in which the road is facing when cars are at a stop
     std::array<int, numTurnOptions> lanesPerTurnOption;     /// Number of lanes in each turn option
     std::array<TrafficLight*, numTurnOptions> lights;       /// TrafficLight associated with each TurnOption
+    bool throughRoad;                                       /// Road continues through the intersection
 
 public:
     /**
@@ -87,6 +88,7 @@ public:
     RoadDirection getDirection(){ return direction; };
     int getNumLanes(TurnOption opt);
     TrafficLight* getLight(TurnOption opt);
+    bool isThroughRoad();
 };
 
 class Intersection{
@@ -97,7 +99,18 @@ protected:
     std::array<Road*, Road::numRoadDirections> roads;
     std::array<bool, Road::numRoadDirections> expectedRoads;
 
-    bool newTurnIsPossible(int numNewLanes, Road::RoadDirection endRoadDir);
+    /**
+     * @brief 
+     * 
+     * @param endRoadDir        Direction of road to turn onto
+     * @param numNewLanes       Number of proposed new lanes
+     * @param roadIsExpected    A boolean set true by this function when there is an expectedRoad
+     * @return true The proposed turn does not exceed to number of available lanes in "endRoadDir"
+     *          or the end road is missing and a new expectedRoad is set.
+     * @return false 
+     */
+    bool newTurnIsPossible(Road::RoadDirection endRoadDir, int numNewLanes, bool* roadIsExpected);
+    bool newRoadIsPossible(Road::RoadDirection dir, int numLeftLanes, int numRightLanes);
 
 public:
     Intersection();

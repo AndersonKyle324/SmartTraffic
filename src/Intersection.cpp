@@ -19,20 +19,43 @@ bool Intersection::roadExists(Road::RoadDirection dir){
     return roads[dir] != NULL;
 }
 
-bool Intersection::newTurnIsPossible(int numNewLanes, Road::RoadDirection endRoadDir){
+bool Intersection::newTurnIsPossible(Road::RoadDirection endRoadDir, int numNewLanes, bool* roadIsExpected){
     bool turnIsPossible;
     Road::isValidRoadDirection(endRoadDir);
 
-    if(! roadExists(endRoadDir)){
-        /// For now we will say the turn is possible but we expect the end road to be populated later
-        expectedRoads[endRoadDir] = true;
+    if(numNewLanes <= 0){
         turnIsPossible = true;
+        *roadIsExpected = false;
+    }
+    else if(! roadExists(endRoadDir)){
+        /// For now we will say the turn is possible but we expect the end road to be populated later
+        turnIsPossible = true;
+        *roadIsExpected = true;
     }
     else{
         turnIsPossible = (numNewLanes <= roads[endRoadDir]->getNumLanes(Road::straight));
+        *roadIsExpected = false;
     }
 
     return turnIsPossible;
+}
+
+bool Intersection::newRoadIsPossible(Road::RoadDirection dir, int numLeftLanes, int numRightLanes){
+    bool leftTurnPossible, rightTurnPossible, roadIsPossible;
+    bool expectLeftRoad;
+    bool expectRightRoad;
+
+    leftTurnPossible = newTurnIsPossible(Road::roadLeftOf(dir), numLeftLanes, &expectLeftRoad);
+    rightTurnPossible = newTurnIsPossible(Road::roadRightOf(dir), numRightLanes, &expectRightRoad);
+    roadIsPossible = leftTurnPossible && rightTurnPossible;
+
+    if(roadIsPossible){
+        /// We only want to set expectedRoads if both turns are currently possible
+        expectedRoads[Road::roadLeftOf(dir)] = expectedRoads[Road::left] || expectLeftRoad;
+        expectedRoads[Road::roadRightOf(dir)] = expectedRoads[Road::right] || expectRightRoad;
+    }
+
+    return roadIsPossible;
 }
 
 int Intersection::addRoad(Road::RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr){
@@ -42,8 +65,7 @@ int Intersection::addRoad(Road::RoadDirection dir, std::array<int, Road::numTurn
         return alreadyExists;
     }
     
-    if( ! newTurnIsPossible(numLanesArr[Road::left], Road::roadLeftOf(dir)) ||
-        ! newTurnIsPossible(numLanesArr[Road::right], Road::roadRightOf(dir))){
+    if( ! newRoadIsPossible(dir, numLanesArr[Road::left], numLanesArr[Road::right])){
         return turnNotPossible;
     }
 
@@ -177,4 +199,8 @@ TrafficLight* Road::getLight(TurnOption opt){
     isValidTurnOption(opt);
 
     return lights[opt];
+}
+
+bool Road::isThroughRoad(){
+    return throughRoad;
 }

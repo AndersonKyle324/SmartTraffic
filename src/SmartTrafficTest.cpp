@@ -196,18 +196,22 @@ TEST_CASE("TC_7-3_INT_addRoad_turnNotPossible"){
     /// Try a road with too many right turns to North
     retVal = inter.addRoad(Road::west, {0, 0, 4});
     CHECK(retVal == Intersection::turnNotPossible);
+    CHECK(inter.roadIsExpected(Road::west) == false);
     
     /// Try a road with too many left turns to North
     retVal = inter.addRoad(Road::east, {4, 0, 0});
     CHECK(retVal == Intersection::turnNotPossible);
+    CHECK(inter.roadIsExpected(Road::east) == false);
     
     /// Try a road with too many left turns to South
     retVal = inter.addRoad(Road::west, {5, 0, 0});
     CHECK(retVal == Intersection::turnNotPossible);
+    CHECK(inter.roadIsExpected(Road::west) == false);
     
     /// Try a road with too many left turns to North
     retVal = inter.addRoad(Road::east, {0, 0, 5});
     CHECK(retVal == Intersection::turnNotPossible);
+    CHECK(inter.roadIsExpected(Road::east) == false);
 }
 
 TEST_CASE("TC_8-1_RD"){
