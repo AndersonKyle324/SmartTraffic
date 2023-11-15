@@ -1,6 +1,8 @@
 #include "Intersection.h"
 
 Intersection::Intersection(){
+    numRoads = 0;
+
     for(int i=0; i<Road::numRoadDirections; i++){
         roads[i] = NULL;
         expectedRoads[i] = false;
@@ -11,6 +13,24 @@ Intersection::~Intersection(){
     for(Road* rd : roads){
         delete rd;
     }
+}
+
+bool Intersection::validate(std::ostream out){
+    if(numRoads < MIN_NUM_ROADS){
+        out << "Must have at least " << MIN_NUM_ROADS << " roads\n";
+        return false;
+    }
+
+    for(int i=0; i<Road::numRoadDirections; i++){
+        if(expectedRoads[i]){
+            out << "Expecting a road facing " << expectedRoads[i] << '\n';
+            return false;
+        }
+    }
+
+    out << "Intersection is valid\n";
+
+    return true;
 }
 
 bool Intersection::roadExists(Road::RoadDirection dir){
@@ -49,10 +69,11 @@ bool Intersection::newRoadIsPossible(Road::RoadDirection dir, int numLeftLanes, 
     rightTurnPossible = newTurnIsPossible(Road::roadRightOf(dir), numRightLanes, &expectRightRoad);
     roadIsPossible = leftTurnPossible && rightTurnPossible;
 
+    /// We only want to set expectedRoads if both turns are currently possible
     if(roadIsPossible){
-        /// We only want to set expectedRoads if both turns are currently possible
-        expectedRoads[Road::roadLeftOf(dir)] = expectedRoads[Road::left] || expectLeftRoad;
-        expectedRoads[Road::roadRightOf(dir)] = expectedRoads[Road::right] || expectRightRoad;
+        /// If expectedRoad is already true, dont set it false.
+        expectedRoads[Road::roadLeftOf(dir)] = expectedRoads[Road::roadLeftOf(dir)] || expectLeftRoad;
+        expectedRoads[Road::roadRightOf(dir)] = expectedRoads[Road::roadRightOf(dir)] || expectRightRoad;
     }
 
     return roadIsPossible;
@@ -71,6 +92,7 @@ int Intersection::addRoad(Road::RoadDirection dir, std::array<int, Road::numTurn
 
     roads[dir] = new Road(dir, numLanesArr);
     expectedRoads[dir] = false;     /// If we were expecting this road before, we now no longer are.
+    numRoads++;
 
     return success;
 }
@@ -201,6 +223,28 @@ TrafficLight* Road::getLight(TurnOption opt){
     return lights[opt];
 }
 
-bool Road::isThroughRoad(){
-    return throughRoad;
+std::ostream& operator<<(std::ostream &out, Road::RoadDirection const& data){
+    switch(data){
+        case Road::north:
+            out << "North";
+            break;
+        
+        case Road::east:
+            out << "East";
+            break;
+        
+        case Road::south:
+            out << "South";
+            break;
+        
+        case Road::west:
+            out << "West";
+            break;
+        
+        default:
+            out << "RoadDirection NaN";
+            break;
+    }
+
+    return out;
 }

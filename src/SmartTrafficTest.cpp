@@ -164,6 +164,7 @@ TEST_CASE("TC_7-1_INT_addRoad"){
     CHECK(inter.roadIsExpected(Road::north) == false);
     CHECK(inter.roadIsExpected(Road::east) == true);
     CHECK(inter.roadIsExpected(Road::west) == true);
+    CHECK(inter.roadIsExpected(Road::south) == false);
     
     CHECK(inter.getRoad(Road::north) != NULL);
 }
@@ -212,6 +213,55 @@ TEST_CASE("TC_7-3_INT_addRoad_turnNotPossible"){
     retVal = inter.addRoad(Road::east, {0, 0, 5});
     CHECK(retVal == Intersection::turnNotPossible);
     CHECK(inter.roadIsExpected(Road::east) == false);
+}
+
+TEST_CASE("TC_7-4_INT_addRoad_4way"){
+    Intersection inter = Intersection();
+    int retVal;
+
+    /// Good first road
+    retVal = inter.addRoad(Road::north, {3, 4, 5});
+    CHECK(retVal == Intersection::success);
+    CHECK(inter.roadExists(Road::north) == true);
+    CHECK(inter.getRoad(Road::north) != NULL);
+    
+    CHECK(inter.roadIsExpected(Road::north) == false);
+    CHECK(inter.roadIsExpected(Road::east) == true);
+    CHECK(inter.roadIsExpected(Road::west) == true);
+    CHECK(inter.roadIsExpected(Road::south) == false);
+    
+    /// Good second road
+    retVal = inter.addRoad(Road::east, {0, 1, 0});
+    CHECK(retVal == Intersection::success);
+    CHECK(inter.roadExists(Road::east) == true);
+    CHECK(inter.getRoad(Road::east) != NULL);
+    
+    CHECK(inter.roadIsExpected(Road::north) == false);
+    CHECK(inter.roadIsExpected(Road::east) == false);
+    CHECK(inter.roadIsExpected(Road::west) == true);
+    CHECK(inter.roadIsExpected(Road::south) == false);
+    
+    /// Good third road
+    retVal = inter.addRoad(Road::west, {2, 3, 1});
+    CHECK(retVal == Intersection::success);
+    CHECK(inter.roadExists(Road::west) == true);
+    CHECK(inter.getRoad(Road::west) != NULL);
+    
+    CHECK(inter.roadIsExpected(Road::north) == false);
+    CHECK(inter.roadIsExpected(Road::east) == false);
+    CHECK(inter.roadIsExpected(Road::west) == false);
+    CHECK(inter.roadIsExpected(Road::south) == true);
+
+    /// Good fourth road
+    retVal = inter.addRoad(Road::south, {1, 2, 3});
+    CHECK(retVal == Intersection::success);
+    CHECK(inter.roadExists(Road::south) == true);
+    CHECK(inter.getRoad(Road::south) != NULL);
+    
+    CHECK(inter.roadIsExpected(Road::north) == false);
+    CHECK(inter.roadIsExpected(Road::east) == false);
+    CHECK(inter.roadIsExpected(Road::west) == false);
+    CHECK(inter.roadIsExpected(Road::south) == false);
 }
 
 TEST_CASE("TC_8-1_RD"){

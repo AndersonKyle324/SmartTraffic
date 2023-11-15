@@ -4,10 +4,22 @@
 #include <array>
 #include "TrafficLight.h"
 
+#define MIN_NUM_ROADS (3)
+
 class Road{
 public:
     enum RoadDirection {north, east, south, west, numRoadDirections};
     enum TurnOption {left, straight, right, numTurnOptions};
+
+    /**
+    * @brief Overloaded << operator to output Road::RoadDirection to a stream.
+    *
+    * @param out The output stream.
+    * @param data The Road::RoadDirection to be output.
+    * @return The modified output stream.
+    */
+    friend std::ostream& operator<<(std::ostream &out, RoadDirection const& data);
+
     /**
      * @brief Checks "dir" is within the allowable range of RoadDirection values
      * 
@@ -42,7 +54,7 @@ protected:
     RoadDirection direction;                                /// The compass direction in which the road is facing when cars are at a stop
     std::array<int, numTurnOptions> lanesPerTurnOption;     /// Number of lanes in each turn option
     std::array<TrafficLight*, numTurnOptions> lights;       /// TrafficLight associated with each TurnOption
-    bool throughRoad;                                       /// Road continues through the intersection
+    bool exitRoad;                                          /// Road is an intersection exit only, can only 
 
 public:
     /**
@@ -88,7 +100,10 @@ public:
     RoadDirection getDirection(){ return direction; };
     int getNumLanes(TurnOption opt);
     TrafficLight* getLight(TurnOption opt);
-    bool isThroughRoad();
+};
+
+class RoadExit : public Road{
+
 };
 
 class Intersection{
@@ -96,6 +111,7 @@ public:
     enum IntersectionError {success, unknown, alreadyExists, turnNotPossible};
 
 protected:
+    int numRoads;
     std::array<Road*, Road::numRoadDirections> roads;
     std::array<bool, Road::numRoadDirections> expectedRoads;
 
@@ -118,6 +134,16 @@ public:
     ~Intersection();
 
     /**
+     * @brief Checks there are no missing roads in the intersection
+     * 
+     * @param out the stream to print success or failure messages to
+     * 
+     * @return true 
+     * @return false There is an unsatisfied expectedRoad, prints a message.
+     */
+    bool validate(std::ostream out);
+
+    /**
      * @brief Checks if road at "dir" is currently present in this Intersection
      * 
      * @param dir direction of the road to check for
@@ -137,6 +163,7 @@ public:
 
     int setAllLightDurations(int onDur, int yellowDur=-1);
 
+    int getNumRoads(){ return numRoads; }
     Road* getRoad(Road::RoadDirection dir);
     bool roadIsExpected(Road::RoadDirection dir);
 };
