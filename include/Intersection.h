@@ -6,6 +6,21 @@
 
 #define MIN_NUM_ROADS (3)
 
+#define MAX_LEN_RIGHT (10)
+#define MAX_LEN_LEFT  (9)
+#define MAX_LEN_STR (6)
+#define SPACE (1)
+#define GAP (3)
+#define SLOT_WEST (0)
+#define SLOT_SOUTH_RIGHT (SLOT_WEST + MAX_LEN_RIGHT + GAP)
+#define SLOT_SOUTH_STR   (SLOT_SOUTH_RIGHT + MAX_LEN_RIGHT + SPACE)
+#define SLOT_SOUTH_LEFT  (SLOT_SOUTH_STR + MAX_LEN_STR + SPACE)
+#define SLOT_NORTH_LEFT  (SLOT_SOUTH_LEFT + MAX_LEN_LEFT + GAP)
+#define SLOT_NORTH_STR   (SLOT_NORTH_LEFT + MAX_LEN_LEFT + SPACE)
+#define SLOT_NORTH_RIGHT (SLOT_NORTH_STR + MAX_LEN_STR + SPACE)
+#define SLOT_EAST        (SLOT_NORTH_RIGHT + MAX_LEN_RIGHT + GAP)
+#define LEN_LINE (SLOT_EAST + MAX_LEN_RIGHT + SPACE)
+
 class Road{
 public:
     enum RoadDirection {north, east, south, west, numRoadDirections};
@@ -127,6 +142,16 @@ protected:
      */
     bool newTurnIsPossible(Road::RoadDirection endRoadDir, int numNewLanes, bool* roadIsExpected);
     bool newRoadIsPossible(Road::RoadDirection dir, int numLeftLanes, int numRightLanes);
+    
+    /**
+    * @brief Get the current light state for the desired road as an ascii art string
+    *
+    * @note This is a helper function for Intersection::print()
+    *
+    * @param dir    The road to write a string for
+    * @param outStr The string to be filled
+    */
+    void printHelper(Road::RoadDirection dir, std::string& outStr);
 
 public:
     Intersection();
@@ -166,6 +191,22 @@ public:
     int getNumRoads(){ return numRoads; }
     Road* getRoad(Road::RoadDirection dir);
     bool roadIsExpected(Road::RoadDirection dir);
+    
+    /**
+    * @brief Gets the TrafficLight pointer for the desired RoadDirection and turnOption
+    * 
+    * @param dir        The direction of the desired road
+    * @param turn       The desired light on road "dir"
+    *
+    * @return pointer to the desired TrafficLight
+    */
+    TrafficLight* getLight(Road::RoadDirection dir, Road::TurnOption turn);
+    
+    /**
+    * @brief Prints the current state of all the lights in the intersection in an
+    *            ascii art fashion to look like a birds eye view of an intersection.
+    */
+    void print();
 };
 
 #endif

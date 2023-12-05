@@ -1,3 +1,6 @@
+#include <string>
+#include <iostream>
+#include <sstream>
 #include "Intersection.h"
 
 Intersection::Intersection(){
@@ -121,6 +124,99 @@ bool Intersection::roadIsExpected(Road::RoadDirection dir){
     return expectedRoads[dir];
 }
 
+TrafficLight* Intersection::getLight(Road::RoadDirection dir, Road::TurnOption turn){
+    if(getRoad(dir) != NULL){
+        return getRoad(dir)->getLight(turn);
+    }
+
+    return NULL;
+}
+
+void Intersection::printHelper(Road::RoadDirection dir, std::string& outStr){
+    TrafficLight *tempLight;
+    int slotLeft, slotStr, slotRight;
+    std::string templateStr =    "           |                             |                             |           \n";
+    std::string templateStrMid = "           |                                                           |           \n";
+    
+
+    switch(dir){
+        case (Road::north):
+            outStr = templateStr;
+            
+            slotLeft = SLOT_NORTH_LEFT;
+            slotStr = SLOT_NORTH_STR;
+            slotRight = SLOT_NORTH_RIGHT;
+            break;
+
+        case (Road::south):
+            outStr = templateStr;
+
+            slotLeft = SLOT_SOUTH_LEFT;
+            slotStr = SLOT_SOUTH_STR;
+            slotRight = SLOT_SOUTH_RIGHT;
+            break;
+
+        case (Road::east):
+            outStr = templateStrMid;
+            outStr.append(templateStrMid);
+            outStr.append(templateStrMid);
+
+            slotLeft = SLOT_EAST;
+            slotStr = SLOT_EAST + LEN_LINE;         /// Same position one line down
+            slotRight = SLOT_EAST + (LEN_LINE * 2); /// Same position two lines down
+            break;
+
+        case (Road::west):
+            outStr = templateStrMid;
+            outStr.append(templateStrMid);
+            outStr.append(templateStrMid);
+
+            slotLeft = SLOT_WEST;
+            slotStr = SLOT_WEST + LEN_LINE;         /// Same position one line down
+            slotRight = SLOT_WEST + (LEN_LINE * 2); /// Same position two lines down
+            break;
+
+        default:
+            return;
+    }
+
+    if( ! roadExists(dir)){
+        return;
+    }
+
+    tempLight = getLight(dir, Road::left);
+    if(tempLight != NULL){
+        outStr.replace(slotLeft, tempLight->toString().size(), tempLight->toString());
+    }
+    tempLight = getLight(dir, Road::straight);
+    if(tempLight != NULL){
+        outStr.replace(slotStr, tempLight->toString().size(), tempLight->toString());
+    }
+    tempLight = getLight(dir, Road::right);
+    if(tempLight != NULL){
+        outStr.replace(slotRight, tempLight->toString().size(), tempLight->toString());
+    }
+}
+
+void Intersection::print(){
+    std::string northStr, westStr, eastStr, southStr;
+    std::string crosswalkStr =    "-----------|===========================================================|-----------\n";
+    std::string dividerStr =       "===========|                             O                             |===========\n";
+
+    printHelper(Road::north, northStr);
+    printHelper(Road::west, westStr);
+    printHelper(Road::east, eastStr);
+    printHelper(Road::south, southStr);
+
+    std::cout << northStr;
+    std::cout << crosswalkStr;
+    std::cout << westStr;
+    std::cout << dividerStr;
+    std::cout << eastStr;
+    std::cout << crosswalkStr;
+    std::cout << southStr;
+}
+
 Road::Road(RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr){
     isValidRoadDirection(dir);
     direction = dir;
@@ -222,6 +318,10 @@ TrafficLight* Road::getLight(TurnOption opt){
 
     return lights[opt];
 }
+
+/*std::ostream& operator<<(std::ostream &out, Intersection const& data){
+}
+*/
 
 std::ostream& operator<<(std::ostream &out, Road::RoadDirection const& data){
     switch(data){

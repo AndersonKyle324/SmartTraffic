@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <iostream>
+#include <sstream>
 
 #include "TrafficLight.h"
 
@@ -87,7 +88,10 @@ std::ostream& operator<<(std::ostream &out, TrafficLight::AvailableColors const&
     return out;
 }
 
-std::ostream& operator<<(std::ostream &out, const TrafficLight& data){
+std::string TrafficLight::toString(){
+    std::stringstream ss;
+    std::string outStr;
+    /* This is for debugging
     out << "<c:'";
     out << data.color;
     out << "' dr:";
@@ -103,14 +107,41 @@ std::ostream& operator<<(std::ostream &out, const TrafficLight& data){
     out << "-";
     out << data.colorDuration[TrafficLight::red];
     out << ">";
+    */
+    ss << getColor();
+    ss >> outStr;
+
+    return outStr;
+}
+
+/*std::ostream& operator<<(std::ostream &out, const TrafficLight& data){
+     This is for debugging
+    out << "<c:'";
+    out << data.color;
+    out << "' dr:";
+    out << data.durationRemaining;
+    out << " ";
+    out << data.colorDuration[TrafficLight::green];
+    out << "-";
+    out << data.colorDuration[TrafficLight::greenLeft];
+    out << "-";
+    out << data.colorDuration[TrafficLight::greenRight];
+    out << "-";
+    out << data.colorDuration[TrafficLight::yellow];
+    out << "-";
+    out << data.colorDuration[TrafficLight::red];
+    out << ">";
+    out << data.toString();
 
     return out;
 }
+*/
 
-std::ostream& operator<<(std::ostream &out, const TrafficLightLeft& data){
+/*std::ostream& operator<<(std::ostream &out, const TrafficLightLeft& data){
     out << "{Left ";
-    out << (TrafficLight)data;
+    out << data.toString();
     out << "}";
 
     return out;
 }
+*/

@@ -148,6 +148,8 @@ public:
         return true;
     }
 
+    std::string toString();
+
     /**
     * @brief Overloaded << operator to output TrafficLight::AvailableColors to a stream.
     *
@@ -187,7 +189,7 @@ class TrafficLightLeft : public TrafficLight{
     * @param data The TrafficLightLeft object to be output.
     * @return The modified output stream.
     */
-    friend std::ostream& operator<<(std::ostream &out, const TrafficLightLeft& data);
+    friend std::ostream& operator<<(std::ostream &out, TrafficLightLeft& data);
 
 public:
     /**

@@ -2,28 +2,16 @@
 #include <iostream>
 
 #include "TrafficLight.h"
+#include "Intersection.h"
 
 int main(int argc, char *argv[]){
-    TrafficLightLeft tl = TrafficLightLeft();
+    Intersection inter = Intersection();
+    inter.addRoad(Road::north, {3, 4, 5});
+    inter.addRoad(Road::east, {0, 1, 0});
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
     
-    // std::cout << tl.getColor();
-
-    tl.setDuration(TrafficLight::greenLeft, 2);
-    tl.setDuration(TrafficLight::red, 1);
-
-    tl.start();
-    std::cout << tl;
-    tl.nextState();
-    tl.tick();
-    std::cout << tl;
-    tl.tick();
-    std::cout << tl;
-    tl.tick();
-
-    std::cout << tl;
-    tl.tick();
-
-    std::cout << tl;
+    inter.print();
 
     return 0;
 }
