@@ -54,6 +54,15 @@ protected:
     std::array<TrafficLight*, numTurnOptions> lights;       /// TrafficLight associated with each TurnOption
     bool exitRoad;                                          /// Road is an intersection exit only, can only 
 
+    /**
+     * @brief Calls start() on the "turnOpt" TrafficLight.
+     *
+     * @param turnOpt the desired light to start
+     * 
+     * @return false if the light is unavailable (NULL)
+    */
+    bool startLight(Road::TurnOption turnOpt);
+
 public:
     /**
      * @brief Construct a new Road object. Allocates memory for a TrafficLight for each TurnOption
@@ -94,6 +103,27 @@ public:
     static RoadDirection roadOppositeOf(RoadDirection dir);
 
     /**
+     * @brief Sets this Road's green light. Allows straight travel and right turns if available.
+     *
+     * @return false if the straight TurnOption is unavailable.
+    */
+    bool setGreen();
+
+    /**
+     * @brief Sets this Road's greenLeft light. Allows left turns.
+     *
+     * @return false if this TurnOption is unavailable.
+    */
+    bool setGreenLeft();
+
+    /**
+     * @brief Sets this Road's greenRight light. Allows right turns.
+     *
+     * @return false if this TurnOption is unavailable.
+    */
+    bool setGreenRight();
+
+    /**
      * @brief Sets the on duration, red duration, and yellow duration for all lights in the road.
      * 
      * @param onDur     the value to be set to all lights on duration
@@ -109,6 +139,13 @@ public:
     RoadDirection getDirection(){ return direction; };
     int getNumLanes(TurnOption opt);
     TrafficLight* getLight(TurnOption opt);
+
+    /**
+     * @brief Gets a std::vector of all non-NULL TrafficLights in this Road.
+     *
+     * @return Vector of active TrafficLight pointers
+    */
+    std::vector<TrafficLight*> getLights();
 };
 
 #endif

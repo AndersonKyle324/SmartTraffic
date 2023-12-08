@@ -1,6 +1,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <vector>
 #include "Intersection.h"
 
 Intersection::Intersection(){
@@ -34,6 +35,26 @@ bool Intersection::validate(std::ostream out){
     out << "Intersection is valid\n";
 
     return true;
+}
+
+void Intersection::tick(){
+    TrafficLight *roadLight;
+
+    for(Road *rd : roads){
+        if(rd != NULL){
+            for(int turnOpt; turnOpt < Road::numTurnOptions; turnOpt++){
+                roadLight = rd->getLight((Road::TurnOption)turnOpt);
+                
+                if(roadLight != NULL){
+                    roadLight->tick();
+                }
+            }
+        }
+    }
+}
+
+void doubleGreen(Road::RoadDirection dir){
+    
 }
 
 bool Intersection::roadExists(Road::RoadDirection dir){
@@ -132,6 +153,19 @@ TrafficLight* Intersection::getLight(Road::RoadDirection dir, Road::TurnOption t
     return NULL;
 }
 
+std::vector<TrafficLight*> Intersection::getLights(){
+    std::vector<TrafficLight*> allLights;
+
+    for(Road *rd : roads){
+        if(rd != NULL){
+            std::vector<TrafficLight*> roadLights = rd->getLights();
+            allLights.insert(allLights.end(), roadLights.begin(), roadLights.end());
+        }
+    }
+
+    return allLights;
+}
+
 void Intersection::printHelper(Road::RoadDirection dir, std::string& outStr){
     TrafficLight *tempLight;
     int slotLeft, slotStr, slotRight;
@@ -201,7 +235,7 @@ void Intersection::printHelper(Road::RoadDirection dir, std::string& outStr){
 void Intersection::print(){
     std::string northStr, westStr, eastStr, southStr;
     std::string crosswalkStr =    "-----------|===========================================================|-----------\n";
-    std::string dividerStr =       "===========|                             O                             |===========\n";
+    std::string dividerStr =      "===========|                             O                             |===========\n";
 
     printHelper(Road::north, northStr);
     printHelper(Road::west, westStr);

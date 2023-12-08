@@ -1,3 +1,5 @@
+#include <vector>
+
 #include "Road.h"
 
 Road::Road(RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr){
@@ -67,6 +69,29 @@ Road::RoadDirection Road::roadOppositeOf(RoadDirection dir){
     return tempRd;
 }
 
+bool Road::startLight(Road::TurnOption turnOpt){
+    if(getLight(turnOpt) != NULL){
+        getLight(turnOpt)->start();
+        return true;
+    }
+
+    return false;
+}
+
+bool Road::setGreen(){
+    setGreenRight();
+
+    return startLight(straight);
+}
+
+bool Road::setGreenLeft(){
+    return startLight(left);
+}
+
+bool Road::setGreenRight(){
+    return startLight(right);
+}
+
 int Road::setAllLightDurations(int onDur, int redDur, int yellowDur){
     int numLightsSet = 0;
 
@@ -102,9 +127,20 @@ TrafficLight* Road::getLight(TurnOption opt){
     return lights[opt];
 }
 
-/*std::ostream& operator<<(std::ostream &out, Intersection const& data){
+std::vector<TrafficLight*> Road::getLights(){
+    std::vector<TrafficLight*> lights;
+    TrafficLight *tl;
+
+    for(int turnOpt=0; turnOpt < numTurnOptions; turnOpt++){
+        tl = getLight((Road::TurnOption)turnOpt);
+
+        if(tl != NULL){
+            lights.push_back(tl);
+        }
+    }
+
+    return lights;
 }
-*/
 
 std::ostream& operator<<(std::ostream &out, Road::RoadDirection const& data){
     switch(data){

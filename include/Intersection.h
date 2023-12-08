@@ -86,6 +86,32 @@ public:
     bool validate(std::ostream out);
 
     /**
+     * @brief Call tick() for all TrafficLights in this Intersection.
+    */
+    void tick();
+
+    /**
+     * @brief Sets two opposite roads green. Allowing both straight and right Road::turnOptions for both Roads.
+     *
+     * @param dir The direction to be set green, the direction opposite of this will also be set green.
+    */
+    void doubleGreen(Road::RoadDirection dir);
+
+    /**
+     * @brief Sets one roads green, greenLeft, and greenRight. Allowing both straight, left, and right Road::turnOptions for this Road alone.
+     *
+     * @param dir The direction to be set green
+    */
+    void singleGreen(Road::RoadDirection dir);
+
+    /**
+     * @brief Sets two opposite roads greenLeft. Allowing left Road::turnOptions for both Roads.
+     *
+     * @param dir The direction to be set greenLeft, the direction opposite of this will also be set greenLeft.
+    */
+    void doubleGreenLeft(Road::RoadDirection dir);
+
+    /**
      * @brief Checks if road at "dir" is currently present in this Intersection
      * 
      * @param dir direction of the road to check for
@@ -126,6 +152,13 @@ public:
     * @return pointer to the desired TrafficLight
     */
     TrafficLight* getLight(Road::RoadDirection dir, Road::TurnOption turn);
+
+    /**
+     * @brief Gets a std::vector of all non-NULL TrafficLights in this intersection.
+     *
+     * @return Vector of active TrafficLight pointers
+    */
+    std::vector<TrafficLight*> getLights();
     
     /**
     * @brief Prints the current state of all the lights in the intersection in an
