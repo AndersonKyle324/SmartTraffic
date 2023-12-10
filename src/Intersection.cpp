@@ -53,8 +53,45 @@ void Intersection::tick(){
     }
 }
 
-void doubleGreen(Road::RoadDirection dir){
+bool Intersection::doubleGreen(Road::RoadDirection dir){
+    Road *rd = roads[dir];
+    Road *oppRd = roads[Road::roadOppositeOf(dir)];
+
+    if(rd == NULL || oppRd == NULL){
+        return false;
+    }
+
+    rd->setGreen();
+    oppRd->setGreen();
     
+    return true;
+}
+
+bool Intersection::singleGreen(Road::RoadDirection dir){
+    Road *rd = roads[dir];
+
+    if(rd == NULL){
+        return false;
+    }
+
+    rd->setGreen();
+    rd->setGreenLeft();
+    
+    return true;
+}
+
+bool Intersection::doubleGreenLeft(Road::RoadDirection dir){
+    Road *rd = roads[dir];
+    Road *oppRd = roads[Road::roadOppositeOf(dir)];
+
+    if(rd == NULL || oppRd == NULL){
+        return false;
+    }
+
+    rd->setGreenLeft();
+    oppRd->setGreenLeft();
+    
+    return true;
 }
 
 bool Intersection::roadExists(Road::RoadDirection dir){

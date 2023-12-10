@@ -280,18 +280,189 @@ TEST_CASE("TC_8-1_RD"){
     CHECK(rd.getLight(Road::right) != NULL);
 }
 
-TEST_CASE("TC_8-1_RD"){
-    int retVal;
+TEST_CASE("TC_9-1_RD_setGreen"){
+    bool retVal;
     Road rd = Road(Road::north, {1,2,3});
 
-    retVal = rd.getNumLanes(Road::left);
-    CHECK(retVal == 1);
-    retVal = rd.getNumLanes(Road::straight);
-    CHECK(retVal == 2);
-    retVal = rd.getNumLanes(Road::right);
-    CHECK(retVal == 3);
+    TrafficLight *left = rd.getLight(Road::left);
+    TrafficLight *straight = rd.getLight(Road::straight);
+    TrafficLight *right = rd.getLight(Road::right);
 
-    CHECK(rd.getLight(Road::left) != NULL);
-    CHECK(rd.getLight(Road::straight) != NULL);
-    CHECK(rd.getLight(Road::right) != NULL);
+    CHECK(left->getColor() == TrafficLight::red);
+    CHECK(straight->getColor() == TrafficLight::red);
+    CHECK(right->getColor() == TrafficLight::red);
+
+    retVal = rd.setGreen();
+    CHECK(retVal == true);
+    
+    CHECK(left->getColor() == TrafficLight::red);
+    CHECK(straight->getColor() == TrafficLight::green);
+    CHECK(right->getColor() == TrafficLight::greenRight);
+}
+
+TEST_CASE("TC_9-2_RD_setGreen_false"){
+    bool retVal;
+    Road rd = Road(Road::north, {0,0,0});
+
+    retVal = rd.setGreen();
+    CHECK(retVal == false);
+}
+
+TEST_CASE("TC_10-1_INT_singleGreen"){
+    bool retVal;
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {3, 4, 5});
+    inter.addRoad(Road::east, {0, 1, 0});
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
+
+    //CHECK(inter.validate(std::cout) == true);
+
+    CHECK(inter.getLight(Road::north, Road::left)->getColor() == TrafficLight::red);
+    CHECK(inter.getLight(Road::north, Road::straight)->getColor() == TrafficLight::red);
+    CHECK(inter.getLight(Road::north, Road::right)->getColor() == TrafficLight::red);
+
+    retVal = inter.singleGreen(Road::north);
+    CHECK(retVal == true);
+
+    CHECK(inter.getLight(Road::north, Road::left)->getColor() == TrafficLight::greenLeft);
+    CHECK(inter.getLight(Road::north, Road::straight)->getColor() == TrafficLight::green);
+    CHECK(inter.getLight(Road::north, Road::right)->getColor() == TrafficLight::greenRight);
+}
+
+TEST_CASE("TC_10-2_INT_singleGreen_missingTurns"){
+    bool retVal;
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {3, 4, 5});
+    inter.addRoad(Road::east, {0, 1, 0});
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
+
+    //CHECK(inter.validate(std::cout) == true);
+
+    CHECK(inter.getLight(Road::east, Road::left) == NULL);
+    CHECK(inter.getLight(Road::east, Road::straight)->getColor() == TrafficLight::red);
+    CHECK(inter.getLight(Road::east, Road::right) == NULL);
+
+    retVal = inter.singleGreen(Road::east);
+    CHECK(retVal == true);
+
+    CHECK(inter.getLight(Road::east, Road::straight)->getColor() == TrafficLight::green);
+}
+
+TEST_CASE("TC_10-3_INT_singleGreen_missingRoad"){
+    bool retVal;
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {3, 4, 5});
+    // No East Road.
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
+
+    //CHECK(inter.validate(std::cout) == true);
+
+    retVal = inter.singleGreen(Road::east);
+    CHECK(retVal == false);
+}
+
+TEST_CASE("TC_11-1_INT_doubleGreen"){
+    bool retVal;
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {3, 4, 5});
+    inter.addRoad(Road::east, {0, 1, 0});
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
+
+    // North
+    TrafficLight *left1 = inter.getLight(Road::north, Road::left);
+    TrafficLight *straight1 = inter.getLight(Road::north, Road::straight);
+    TrafficLight *right1 = inter.getLight(Road::north, Road::right);
+    
+    // South
+    TrafficLight *left2 = inter.getLight(Road::south, Road::left);
+    TrafficLight *straight2 = inter.getLight(Road::south, Road::straight);
+    TrafficLight *right2 = inter.getLight(Road::south, Road::right);
+
+    //CHECK(inter.validate(std::cout) == true);
+
+    CHECK(left1->getColor() == TrafficLight::red);
+    CHECK(straight1->getColor() == TrafficLight::red);
+    CHECK(right1->getColor() == TrafficLight::red);
+    CHECK(left2->getColor() == TrafficLight::red);
+    CHECK(straight2->getColor() == TrafficLight::red);
+    CHECK(right2->getColor() == TrafficLight::red);
+
+    retVal = inter.doubleGreen(Road::north);
+    CHECK(retVal == true);
+
+    CHECK(left1->getColor() == TrafficLight::red);
+    CHECK(straight1->getColor() == TrafficLight::green);
+    CHECK(right1->getColor() == TrafficLight::greenRight);
+    CHECK(left2->getColor() == TrafficLight::red);
+    CHECK(straight2->getColor() == TrafficLight::green);
+    CHECK(right2->getColor() == TrafficLight::greenRight);
+}
+
+TEST_CASE("TC_11-2_INT_doubleGreen_missingOppositeRoad"){
+    bool retVal;
+    Intersection inter = Intersection();
+
+    // Missing North
+    inter.addRoad(Road::east, {0, 1, 0});
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
+
+    // North
+    TrafficLight *left1 = inter.getLight(Road::south, Road::left);
+    TrafficLight *straight1 = inter.getLight(Road::south, Road::straight);
+    TrafficLight *right1 = inter.getLight(Road::south, Road::right);
+    
+    retVal = inter.doubleGreen(Road::south);
+    CHECK(retVal == false);
+
+    CHECK(left1->getColor() == TrafficLight::red);
+    CHECK(straight1->getColor() == TrafficLight::red);
+    CHECK(right1->getColor() == TrafficLight::red);
+}
+
+TEST_CASE("TC_12-1_INT_doubleGreenLeft"){
+    bool retVal;
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {3, 4, 5});
+    inter.addRoad(Road::east, {0, 1, 0});
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
+
+    // North
+    TrafficLight *left1 = inter.getLight(Road::north, Road::left);
+    TrafficLight *straight1 = inter.getLight(Road::north, Road::straight);
+    TrafficLight *right1 = inter.getLight(Road::north, Road::right);
+    
+    // South
+    TrafficLight *left2 = inter.getLight(Road::south, Road::left);
+    TrafficLight *straight2 = inter.getLight(Road::south, Road::straight);
+    TrafficLight *right2 = inter.getLight(Road::south, Road::right);
+
+    //CHECK(inter.validate(std::cout) == true);
+
+    CHECK(left1->getColor() == TrafficLight::red);
+    CHECK(straight1->getColor() == TrafficLight::red);
+    CHECK(right1->getColor() == TrafficLight::red);
+    CHECK(left2->getColor() == TrafficLight::red);
+    CHECK(straight2->getColor() == TrafficLight::red);
+    CHECK(right2->getColor() == TrafficLight::red);
+
+    retVal = inter.doubleGreenLeft(Road::north);
+    CHECK(retVal == true);
+
+    CHECK(left1->getColor() == TrafficLight::greenLeft);
+    CHECK(straight1->getColor() == TrafficLight::red);
+    CHECK(right1->getColor() == TrafficLight::red);
+    CHECK(left2->getColor() == TrafficLight::greenLeft);
+    CHECK(straight2->getColor() == TrafficLight::red);
+    CHECK(right2->getColor() == TrafficLight::red);
 }

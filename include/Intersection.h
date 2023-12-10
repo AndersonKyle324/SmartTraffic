@@ -94,22 +94,34 @@ public:
      * @brief Sets two opposite roads green. Allowing both straight and right Road::turnOptions for both Roads.
      *
      * @param dir The direction to be set green, the direction opposite of this will also be set green.
+     *
+     * @warning if this road is missing the afformentioned lights, nothing will happen
+     *
+     * @return false if road in "dir" is missing or road opposite of "dir" is missing
     */
-    void doubleGreen(Road::RoadDirection dir);
+    bool doubleGreen(Road::RoadDirection dir);
 
     /**
      * @brief Sets one roads green, greenLeft, and greenRight. Allowing both straight, left, and right Road::turnOptions for this Road alone.
      *
      * @param dir The direction to be set green
+     *
+     * @warning if this road is missing the afformentioned lights, nothing will happen
+     *
+     * @return false if road "dir" is missing
     */
-    void singleGreen(Road::RoadDirection dir);
+    bool singleGreen(Road::RoadDirection dir);
 
     /**
      * @brief Sets two opposite roads greenLeft. Allowing left Road::turnOptions for both Roads.
      *
+     * @warning if this road is missing the afformentioned lights, nothing will happen
+     *
      * @param dir The direction to be set greenLeft, the direction opposite of this will also be set greenLeft.
+     *
+     * @return false if road "dir" is missing or if road opposite of "dir" is missing
     */
-    void doubleGreenLeft(Road::RoadDirection dir);
+    bool doubleGreenLeft(Road::RoadDirection dir);
 
     /**
      * @brief Checks if road at "dir" is currently present in this Intersection
