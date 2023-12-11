@@ -57,11 +57,12 @@ protected:
     /**
      * @brief Calls start() on the "turnOpt" TrafficLight.
      *
-     * @param turnOpt the desired light to start
+     * @param turnOpt       the desired light to start
+     * @param onDuration    The onDuration to be set for the "turnOpt" light
      * 
      * @return false if the light is unavailable (NULL)
     */
-    bool startLight(Road::TurnOption turnOpt);
+    bool startLight(Road::TurnOption turnOpt, int onDuration);
 
 public:
     /**
@@ -70,8 +71,9 @@ public:
      * 
      * @param dir               Road direction
      * @param numLanesArr       Number of lanes for each TurnOption
+     * @param onDuration        The duration for the onColor for all lights in this Road
      */
-    Road(RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr);
+    Road(RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr, int onDuration);
     
     /**
      * @brief Destroy the Road object. Deletes all TrafficLights in lights array.
@@ -105,23 +107,29 @@ public:
     /**
      * @brief Sets this Road's green light. Allows straight travel and right turns if available.
      *
+     * @param onDuration    The onDuration to be set for the light(s)
+     *
      * @return false if the straight TurnOption is unavailable.
     */
-    bool setGreen();
+    bool setGreen(int onDuration);
 
     /**
      * @brief Sets this Road's greenLeft light. Allows left turns.
      *
+     * @param onDuration    The onDuration to be set for the light(s)
+     *
      * @return false if this TurnOption is unavailable.
     */
-    bool setGreenLeft();
+    bool setGreenLeft(int onDuration);
 
     /**
      * @brief Sets this Road's greenRight light. Allows right turns.
      *
+     * @param onDuration    The onDuration to be set for the light(s)
+     *
      * @return false if this TurnOption is unavailable.
     */
-    bool setGreenRight();
+    bool setGreenRight(int onDuration);
 
     /**
      * @brief Sets the on duration, red duration, and yellow duration for all lights in the road.

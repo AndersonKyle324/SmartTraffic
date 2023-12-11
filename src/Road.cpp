@@ -2,7 +2,7 @@
 
 #include "Road.h"
 
-Road::Road(RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr){
+Road::Road(RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr, int onDuration){
     isValidRoadDirection(dir);
     direction = dir;
 
@@ -13,15 +13,15 @@ Road::Road(RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr)
 
     if(numLanesArr[left] > 0){
         lanesPerTurnOption[left] = numLanesArr[left];
-        lights[left] = new TrafficLightLeft(1, 1);
+        lights[left] = new TrafficLightLeft(onDuration, -1);
     }
     if(numLanesArr[straight] > 0){
         lanesPerTurnOption[straight] = numLanesArr[straight];
-        lights[straight] = new TrafficLight(TrafficLight::green, 1, 1);
+        lights[straight] = new TrafficLight(TrafficLight::green, onDuration, -1);
     }
     if(numLanesArr[right] > 0){
         lanesPerTurnOption[right] = numLanesArr[right];
-        lights[right] = new TrafficLight(TrafficLight::greenRight, 1, 1);
+        lights[right] = new TrafficLight(TrafficLight::greenRight, onDuration, -1);
     }
 }
 
@@ -69,8 +69,9 @@ Road::RoadDirection Road::roadOppositeOf(RoadDirection dir){
     return tempRd;
 }
 
-bool Road::startLight(Road::TurnOption turnOpt){
+bool Road::startLight(Road::TurnOption turnOpt, int onDuration){
     if(getLight(turnOpt) != NULL){
+        getLight(turnOpt)->setOnDuration(onDuration);
         getLight(turnOpt)->start();
         return true;
     }
@@ -78,18 +79,18 @@ bool Road::startLight(Road::TurnOption turnOpt){
     return false;
 }
 
-bool Road::setGreen(){
-    setGreenRight();
+bool Road::setGreen(int onDuration){
+    setGreenRight(onDuration);
 
-    return startLight(straight);
+    return startLight(straight, onDuration);
 }
 
-bool Road::setGreenLeft(){
-    return startLight(left);
+bool Road::setGreenLeft(int onDuration){
+    return startLight(left, onDuration);
 }
 
-bool Road::setGreenRight(){
-    return startLight(right);
+bool Road::setGreenRight(int onDuration){
+    return startLight(right, onDuration);
 }
 
 int Road::setAllLightDurations(int onDur, int redDur, int yellowDur){

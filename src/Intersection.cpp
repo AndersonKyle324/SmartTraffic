@@ -42,7 +42,7 @@ void Intersection::tick(){
 
     for(Road *rd : roads){
         if(rd != NULL){
-            for(int turnOpt; turnOpt < Road::numTurnOptions; turnOpt++){
+            for(int turnOpt=0; turnOpt < Road::numTurnOptions; turnOpt++){
                 roadLight = rd->getLight((Road::TurnOption)turnOpt);
                 
                 if(roadLight != NULL){
@@ -53,7 +53,7 @@ void Intersection::tick(){
     }
 }
 
-bool Intersection::doubleGreen(Road::RoadDirection dir){
+bool Intersection::doubleGreen(Road::RoadDirection dir, int onDuration){
     Road *rd = roads[dir];
     Road *oppRd = roads[Road::roadOppositeOf(dir)];
 
@@ -61,26 +61,26 @@ bool Intersection::doubleGreen(Road::RoadDirection dir){
         return false;
     }
 
-    rd->setGreen();
-    oppRd->setGreen();
+    rd->setGreen(onDuration);
+    oppRd->setGreen(onDuration);
     
     return true;
 }
 
-bool Intersection::singleGreen(Road::RoadDirection dir){
+bool Intersection::singleGreen(Road::RoadDirection dir, int onDuration){
     Road *rd = roads[dir];
 
     if(rd == NULL){
         return false;
     }
 
-    rd->setGreen();
-    rd->setGreenLeft();
+    rd->setGreen(onDuration);
+    rd->setGreenLeft(onDuration);
     
     return true;
 }
 
-bool Intersection::doubleGreenLeft(Road::RoadDirection dir){
+bool Intersection::doubleGreenLeft(Road::RoadDirection dir, int onDuration){
     Road *rd = roads[dir];
     Road *oppRd = roads[Road::roadOppositeOf(dir)];
 
@@ -88,8 +88,8 @@ bool Intersection::doubleGreenLeft(Road::RoadDirection dir){
         return false;
     }
 
-    rd->setGreenLeft();
-    oppRd->setGreenLeft();
+    rd->setGreenLeft(onDuration);
+    oppRd->setGreenLeft(onDuration);
     
     return true;
 }
@@ -140,7 +140,7 @@ bool Intersection::newRoadIsPossible(Road::RoadDirection dir, int numLeftLanes, 
     return roadIsPossible;
 }
 
-int Intersection::addRoad(Road::RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr){
+int Intersection::addRoad(Road::RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr, int onDuration){
     Road::isValidRoadDirection(dir);
 
     if(roads[dir] != NULL){
@@ -151,7 +151,7 @@ int Intersection::addRoad(Road::RoadDirection dir, std::array<int, Road::numTurn
         return turnNotPossible;
     }
 
-    roads[dir] = new Road(dir, numLanesArr);
+    roads[dir] = new Road(dir, numLanesArr, onDuration);
     expectedRoads[dir] = false;     /// If we were expecting this road before, we now no longer are.
     numRoads++;
 

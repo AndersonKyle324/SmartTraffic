@@ -4,6 +4,8 @@
 #include <array>
 #include <iostream>
 
+#define DEFAULT_ON_DURATION (1)
+
 /**
  * @class TrafficLight
  * @brief Represents a traffic light.
@@ -123,9 +125,16 @@ public:
      * @brief Sets the duration for a specific color.
      *
      * @param durColor The color for which to set the duration.
-     * @param duration The duration value.
+     * @param duration The duration value. The number of ticks to stay on "durColor" color.
      */
     void setDuration(AvailableColors durColor, int duration){ colorDuration[durColor] = duration; }
+
+    /**
+     * @brief Sets the duration for a specific color.
+     *
+     * @param duration The duration value. The number of ticks to stay on onColor color.
+     */
+    void setOnDuration(int duration){ setDuration(onColor, duration); }
 
     /**
      * @brief Sets the color of the traffic light.

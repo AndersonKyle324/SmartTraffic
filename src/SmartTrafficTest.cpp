@@ -4,12 +4,31 @@
 #include "TrafficLight.h"
 #include "Intersection.h"
 
-TEST_CASE("TC_1_TF_start"){
+TEST_CASE("TC_1-1_TF_start"){
     TrafficLightLeft tf = TrafficLightLeft();
 
     tf.start();
 
     CHECK(tf.getColor() == TrafficLight::greenLeft);
+}
+
+TEST_CASE("TC_1-2_TF_setDuration"){
+    TrafficLight tl = TrafficLight(TrafficLight::green, 3, -1);
+
+    CHECK(tl.getColorDuration(TrafficLight::green) == 3);
+    CHECK(tl.getColorDuration(TrafficLight::red) == -1);
+
+    tl.start();
+
+    CHECK(tl.getDurationRemaining() == 3); 
+
+    tl.setDuration(TrafficLight::green, 4);
+    tl.start();
+    CHECK(tl.getDurationRemaining() == 4); 
+
+    tl.setOnDuration(5);
+    tl.start();
+    CHECK(tl.getDurationRemaining() == 5); 
 }
 
 TEST_CASE("TC_2-1_TF_tick"){
@@ -266,7 +285,7 @@ TEST_CASE("TC_7-4_INT_addRoad_4way"){
 
 TEST_CASE("TC_8-1_RD"){
     int retVal;
-    Road rd = Road(Road::north, {1,2,3});
+    Road rd = Road(Road::north, {1,2,3}, DEFAULT_ON_DURATION);
 
     retVal = rd.getNumLanes(Road::left);
     CHECK(retVal == 1);
@@ -282,7 +301,7 @@ TEST_CASE("TC_8-1_RD"){
 
 TEST_CASE("TC_9-1_RD_setGreen"){
     bool retVal;
-    Road rd = Road(Road::north, {1,2,3});
+    Road rd = Road(Road::north, {1,2,3}, DEFAULT_ON_DURATION);
 
     TrafficLight *left = rd.getLight(Road::left);
     TrafficLight *straight = rd.getLight(Road::straight);
@@ -292,7 +311,7 @@ TEST_CASE("TC_9-1_RD_setGreen"){
     CHECK(straight->getColor() == TrafficLight::red);
     CHECK(right->getColor() == TrafficLight::red);
 
-    retVal = rd.setGreen();
+    retVal = rd.setGreen(1);
     CHECK(retVal == true);
     
     CHECK(left->getColor() == TrafficLight::red);
@@ -302,9 +321,9 @@ TEST_CASE("TC_9-1_RD_setGreen"){
 
 TEST_CASE("TC_9-2_RD_setGreen_false"){
     bool retVal;
-    Road rd = Road(Road::north, {0,0,0});
+    Road rd = Road(Road::north, {0,0,0}, DEFAULT_ON_DURATION);
 
-    retVal = rd.setGreen();
+    retVal = rd.setGreen(1);
     CHECK(retVal == false);
 }
 
@@ -323,12 +342,16 @@ TEST_CASE("TC_10-1_INT_singleGreen"){
     CHECK(inter.getLight(Road::north, Road::straight)->getColor() == TrafficLight::red);
     CHECK(inter.getLight(Road::north, Road::right)->getColor() == TrafficLight::red);
 
-    retVal = inter.singleGreen(Road::north);
+    retVal = inter.singleGreen(Road::north, 4);
     CHECK(retVal == true);
 
     CHECK(inter.getLight(Road::north, Road::left)->getColor() == TrafficLight::greenLeft);
     CHECK(inter.getLight(Road::north, Road::straight)->getColor() == TrafficLight::green);
     CHECK(inter.getLight(Road::north, Road::right)->getColor() == TrafficLight::greenRight);
+
+    CHECK(inter.getLight(Road::north, Road::left)->getDurationRemaining() == 4);
+    CHECK(inter.getLight(Road::north, Road::straight)->getDurationRemaining() == 4);
+    CHECK(inter.getLight(Road::north, Road::right)->getDurationRemaining() == 4);
 }
 
 TEST_CASE("TC_10-2_INT_singleGreen_missingTurns"){
@@ -346,7 +369,7 @@ TEST_CASE("TC_10-2_INT_singleGreen_missingTurns"){
     CHECK(inter.getLight(Road::east, Road::straight)->getColor() == TrafficLight::red);
     CHECK(inter.getLight(Road::east, Road::right) == NULL);
 
-    retVal = inter.singleGreen(Road::east);
+    retVal = inter.singleGreen(Road::east, 1);
     CHECK(retVal == true);
 
     CHECK(inter.getLight(Road::east, Road::straight)->getColor() == TrafficLight::green);
@@ -363,7 +386,7 @@ TEST_CASE("TC_10-3_INT_singleGreen_missingRoad"){
 
     //CHECK(inter.validate(std::cout) == true);
 
-    retVal = inter.singleGreen(Road::east);
+    retVal = inter.singleGreen(Road::east, 1);
     CHECK(retVal == false);
 }
 
@@ -395,7 +418,7 @@ TEST_CASE("TC_11-1_INT_doubleGreen"){
     CHECK(straight2->getColor() == TrafficLight::red);
     CHECK(right2->getColor() == TrafficLight::red);
 
-    retVal = inter.doubleGreen(Road::north);
+    retVal = inter.doubleGreen(Road::north, 1);
     CHECK(retVal == true);
 
     CHECK(left1->getColor() == TrafficLight::red);
@@ -420,7 +443,7 @@ TEST_CASE("TC_11-2_INT_doubleGreen_missingOppositeRoad"){
     TrafficLight *straight1 = inter.getLight(Road::south, Road::straight);
     TrafficLight *right1 = inter.getLight(Road::south, Road::right);
     
-    retVal = inter.doubleGreen(Road::south);
+    retVal = inter.doubleGreen(Road::south, 1);
     CHECK(retVal == false);
 
     CHECK(left1->getColor() == TrafficLight::red);
@@ -456,7 +479,7 @@ TEST_CASE("TC_12-1_INT_doubleGreenLeft"){
     CHECK(straight2->getColor() == TrafficLight::red);
     CHECK(right2->getColor() == TrafficLight::red);
 
-    retVal = inter.doubleGreenLeft(Road::north);
+    retVal = inter.doubleGreenLeft(Road::north, 1);
     CHECK(retVal == true);
 
     CHECK(left1->getColor() == TrafficLight::greenLeft);
@@ -465,4 +488,145 @@ TEST_CASE("TC_12-1_INT_doubleGreenLeft"){
     CHECK(left2->getColor() == TrafficLight::greenLeft);
     CHECK(straight2->getColor() == TrafficLight::red);
     CHECK(right2->getColor() == TrafficLight::red);
+}
+
+TEST_CASE("TC_13-1_INT_tick"){
+    bool retVal;
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {3, 4, 5});
+    inter.addRoad(Road::east, {0, 1, 0});
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
+
+    // North
+    TrafficLight *left1 = inter.getLight(Road::north, Road::left);
+    TrafficLight *straight1 = inter.getLight(Road::north, Road::straight);
+    TrafficLight *right1 = inter.getLight(Road::north, Road::right);
+    
+    // South
+    TrafficLight *left2 = inter.getLight(Road::south, Road::left);
+    TrafficLight *straight2 = inter.getLight(Road::south, Road::straight);
+    TrafficLight *right2 = inter.getLight(Road::south, Road::right);
+
+    //CHECK(inter.validate(std::cout) == true);
+
+    retVal = inter.doubleGreenLeft(Road::north, 2);
+    CHECK(retVal == true);
+
+    CHECK(left1->getColor() == TrafficLight::greenLeft);
+    CHECK(straight1->getColor() == TrafficLight::red);
+    CHECK(right1->getColor() == TrafficLight::red);
+    CHECK(left2->getColor() == TrafficLight::greenLeft);
+    CHECK(straight2->getColor() == TrafficLight::red);
+    CHECK(right2->getColor() == TrafficLight::red);
+
+    CHECK(left1->getDurationRemaining() == 2);
+    CHECK(straight1->getDurationRemaining() == -1);
+    CHECK(right1->getDurationRemaining() == -1);
+    CHECK(left2->getDurationRemaining() == 2);
+    CHECK(straight2->getDurationRemaining() == -1);
+    CHECK(right2->getDurationRemaining() == -1);
+
+    inter.tick();
+
+    CHECK(left1->getDurationRemaining() == 1);
+    CHECK(straight1->getDurationRemaining() == -1);
+    CHECK(right1->getDurationRemaining() == -1);
+    CHECK(left2->getDurationRemaining() == 1);
+    CHECK(straight2->getDurationRemaining() == -1);
+    CHECK(right2->getDurationRemaining() == -1);
+
+    inter.tick();
+
+    // durationRemaining hits 0, should set to yellow
+    CHECK(left1->getColor() == TrafficLight::yellow);
+    CHECK(straight1->getColor() == TrafficLight::red);
+    CHECK(right1->getColor() == TrafficLight::red);
+    CHECK(left2->getColor() == TrafficLight::yellow);
+    CHECK(straight2->getColor() == TrafficLight::red);
+    CHECK(right2->getColor() == TrafficLight::red);
+
+    CHECK(left1->getDurationRemaining() == left1->yellowDuration);
+    CHECK(straight1->getDurationRemaining() == -1);
+    CHECK(right1->getDurationRemaining() == -1);
+    CHECK(left2->getDurationRemaining() == left2->yellowDuration);
+    CHECK(straight2->getDurationRemaining() == -1);
+    CHECK(right2->getDurationRemaining() == -1);
+
+    for(int i=0; i<left1->yellowDuration; i++){
+        inter.tick();
+    }
+
+    CHECK(left1->getColor() == TrafficLight::red);
+    CHECK(straight1->getColor() == TrafficLight::red);
+    CHECK(right1->getColor() == TrafficLight::red);
+    CHECK(left2->getColor() == TrafficLight::red);
+    CHECK(straight2->getColor() == TrafficLight::red);
+    CHECK(right2->getColor() == TrafficLight::red);
+
+    CHECK(left1->getDurationRemaining() == -1);
+    CHECK(straight1->getDurationRemaining() == -1);
+    CHECK(right1->getDurationRemaining() == -1);
+    CHECK(left2->getDurationRemaining() == -1);
+    CHECK(straight2->getDurationRemaining() == -1);
+    CHECK(right2->getDurationRemaining() == -1);
+}
+
+TEST_CASE("TC_13-2_INT_tick_longerDuration"){
+    bool retVal;
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {3, 4, 5});
+    inter.addRoad(Road::east, {0, 1, 0});
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
+
+    // West
+    TrafficLight *left1 = inter.getLight(Road::west, Road::left);
+    TrafficLight *straight1 = inter.getLight(Road::west, Road::straight);
+    TrafficLight *right1 = inter.getLight(Road::west, Road::right);
+    
+    int onDuration = 10;
+    int yellowDuration = 4;
+
+    left1->setDuration(TrafficLight::yellow, yellowDuration);
+    straight1->setDuration(TrafficLight::yellow, yellowDuration);
+    right1->setDuration(TrafficLight::yellow, yellowDuration);
+
+    retVal = inter.singleGreen(Road::west, onDuration);
+    CHECK(retVal == true);
+
+    CHECK(left1->getColor() == TrafficLight::greenLeft);
+    CHECK(straight1->getColor() == TrafficLight::green);
+    CHECK(right1->getColor() == TrafficLight::greenRight);
+
+    CHECK(left1->getDurationRemaining() == onDuration);
+    CHECK(straight1->getDurationRemaining() == onDuration);
+    CHECK(right1->getDurationRemaining() == onDuration);
+
+    for(int i=0; i<onDuration; i++){
+        inter.tick();
+    }
+
+    // durationRemaining hits 0, should set to yellow
+    CHECK(left1->getColor() == TrafficLight::yellow);
+    CHECK(straight1->getColor() == TrafficLight::yellow);
+    CHECK(right1->getColor() == TrafficLight::yellow);
+
+    CHECK(left1->getDurationRemaining() == yellowDuration);
+    CHECK(straight1->getDurationRemaining() == yellowDuration);
+    CHECK(right1->getDurationRemaining() == yellowDuration);
+
+    for(int i=0; i<yellowDuration; i++){
+        inter.tick();
+    }
+
+    CHECK(left1->getColor() == TrafficLight::red);
+    CHECK(straight1->getColor() == TrafficLight::red);
+    CHECK(right1->getColor() == TrafficLight::red);
+
+    CHECK(left1->getDurationRemaining() == -1);
+    CHECK(straight1->getDurationRemaining() == -1);
+    CHECK(right1->getDurationRemaining() == -1);
 }
