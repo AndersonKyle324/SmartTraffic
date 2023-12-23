@@ -2,8 +2,10 @@
 #define INTERSECTION_H
 
 #include <array>
+#include <vector>
 #include "TrafficLight.h"
 #include "Road.h"
+#include "LightConfig.h"
 
 #define MIN_NUM_ROADS    (3)
 
@@ -30,6 +32,7 @@ protected:
     int numRoads;
     std::array<Road*, Road::numRoadDirections> roads;
     std::array<bool, Road::numRoadDirections> expectedRoads;
+    std::vector<LightConfig> configSchedule;
 
     /**
      * @brief Checks to see if this intended new turn for a new road is compatible with the current state of the
@@ -83,12 +86,14 @@ public:
      * @return false There is an unsatisfied expectedRoad, prints a message or there are less than
      *          #MIN_NUM_ROADS.
      */
-    bool validate(std::ostream out);
+    bool validate();
 
     /**
      * @brief Call tick() for all TrafficLights in this Intersection.
     */
     void tick();
+
+    bool schedule(LightConfig::Option configOpt, Road::RoadDirection direction, int duration);
 
     /**
      * @brief Sets two opposite roads green. Allowing both straight and right Road::turnOptions for both Roads.

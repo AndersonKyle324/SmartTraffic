@@ -19,20 +19,20 @@ Intersection::~Intersection(){
     }
 }
 
-bool Intersection::validate(std::ostream out){
+bool Intersection::validate(){
     if(numRoads < MIN_NUM_ROADS){
-        out << "Must have at least " << MIN_NUM_ROADS << " roads\n";
+        std::cout << "Must have at least " << MIN_NUM_ROADS << " roads\n";
         return false;
     }
 
     for(int i=0; i<Road::numRoadDirections; i++){
         if(expectedRoads[i]){
-            out << "Expecting a road facing " << expectedRoads[i] << '\n';
+            std::cout << "Expecting a road facing " << expectedRoads[i] << '\n';
             return false;
         }
     }
 
-    out << "Intersection is valid\n";
+    std::cout << "Intersection is valid\n";
 
     return true;
 }
@@ -51,6 +51,14 @@ void Intersection::tick(){
             }
         }
     }
+}
+
+bool Intersection::schedule(LightConfig::Option configOpt, Road::RoadDirection direction, int duration){
+    LightConfig interConfig = LightConfig(configOpt, direction, duration);
+
+    configSchedule.push_back(interConfig);
+
+    return true;
 }
 
 bool Intersection::doubleGreen(Road::RoadDirection dir, int onDuration){
@@ -286,4 +294,5 @@ void Intersection::print(){
     std::cout << eastStr;
     std::cout << crosswalkStr;
     std::cout << southStr;
+    std::cout << std::endl;
 }
