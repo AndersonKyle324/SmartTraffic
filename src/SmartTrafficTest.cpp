@@ -3,6 +3,7 @@
 
 #include "TrafficLight.h"
 #include "Intersection.h"
+#include "LightConfig.h"
 
 TEST_CASE("TC_1-1_TF_start"){
     TrafficLightLeft tf = TrafficLightLeft();
@@ -300,7 +301,7 @@ TEST_CASE("TC_8-1_RD"){
 }
 
 TEST_CASE("TC_9-1_RD_setGreen"){
-    bool retVal;
+    int retVal;
     Road rd = Road(Road::north, {1,2,3}, DEFAULT_ON_DURATION);
 
     TrafficLight *left = rd.getLight(Road::left);
@@ -312,7 +313,7 @@ TEST_CASE("TC_9-1_RD_setGreen"){
     CHECK(right->getColor() == TrafficLight::red);
 
     retVal = rd.setGreen(1);
-    CHECK(retVal == true);
+    CHECK(retVal == 2);
     
     CHECK(left->getColor() == TrafficLight::red);
     CHECK(straight->getColor() == TrafficLight::green);
@@ -492,6 +493,7 @@ TEST_CASE("TC_12-1_INT_doubleGreenLeft"){
 
 TEST_CASE("TC_13-1_INT_tick"){
     bool retVal;
+    int numUnfinishedLights;
     Intersection inter = Intersection();
 
     inter.addRoad(Road::north, {3, 4, 5});
@@ -528,7 +530,9 @@ TEST_CASE("TC_13-1_INT_tick"){
     CHECK(straight2->getDurationRemaining() == -1);
     CHECK(right2->getDurationRemaining() == -1);
 
-    inter.tick();
+    numUnfinishedLights = inter.tick();
+
+    CHECK(numUnfinishedLights == 2);
 
     CHECK(left1->getDurationRemaining() == 1);
     CHECK(straight1->getDurationRemaining() == -1);
@@ -537,7 +541,9 @@ TEST_CASE("TC_13-1_INT_tick"){
     CHECK(straight2->getDurationRemaining() == -1);
     CHECK(right2->getDurationRemaining() == -1);
 
-    inter.tick();
+    numUnfinishedLights = inter.tick();
+
+    CHECK(numUnfinishedLights == 2);
 
     // durationRemaining hits 0, should set to yellow
     CHECK(left1->getColor() == TrafficLight::yellow);
@@ -555,8 +561,10 @@ TEST_CASE("TC_13-1_INT_tick"){
     CHECK(right2->getDurationRemaining() == -1);
 
     for(int i=0; i<left1->yellowDuration; i++){
-        inter.tick();
+        numUnfinishedLights = inter.tick();
     }
+
+    CHECK(numUnfinishedLights == 0);
 
     CHECK(left1->getColor() == TrafficLight::red);
     CHECK(straight1->getColor() == TrafficLight::red);
@@ -575,6 +583,7 @@ TEST_CASE("TC_13-1_INT_tick"){
 
 TEST_CASE("TC_13-2_INT_tick_longerDuration"){
     bool retVal;
+    int numUnfinishedLights;
     Intersection inter = Intersection();
 
     inter.addRoad(Road::north, {3, 4, 5});
@@ -605,9 +614,14 @@ TEST_CASE("TC_13-2_INT_tick_longerDuration"){
     CHECK(straight1->getDurationRemaining() == onDuration);
     CHECK(right1->getDurationRemaining() == onDuration);
 
+    numUnfinishedLights = inter.getNumUnfinishedLights();
+    CHECK(numUnfinishedLights == 3);
+
     for(int i=0; i<onDuration; i++){
-        inter.tick();
+        numUnfinishedLights = inter.tick();
     }
+
+    CHECK(numUnfinishedLights == 3);
 
     // durationRemaining hits 0, should set to yellow
     CHECK(left1->getColor() == TrafficLight::yellow);
@@ -619,8 +633,10 @@ TEST_CASE("TC_13-2_INT_tick_longerDuration"){
     CHECK(right1->getDurationRemaining() == yellowDuration);
 
     for(int i=0; i<yellowDuration; i++){
-        inter.tick();
+        numUnfinishedLights = inter.tick();
     }
+
+    CHECK(numUnfinishedLights == 0);
 
     CHECK(left1->getColor() == TrafficLight::red);
     CHECK(straight1->getColor() == TrafficLight::red);
@@ -629,4 +645,18 @@ TEST_CASE("TC_13-2_INT_tick_longerDuration"){
     CHECK(left1->getDurationRemaining() == -1);
     CHECK(straight1->getDurationRemaining() == -1);
     CHECK(right1->getDurationRemaining() == -1);
+}
+
+TEST_CASE("TC_14-1_IntersectionConfig"){
+    LightConfig config = LightConfig(LightConfig::doubleGreen, Road::north, 3);
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {3, 4, 5});
+    inter.addRoad(Road::east, {0, 1, 0});
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
+
+    inter.schedule(config);
+
+
 }

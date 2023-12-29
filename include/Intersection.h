@@ -32,7 +32,9 @@ protected:
     int numRoads;
     std::array<Road*, Road::numRoadDirections> roads;
     std::array<bool, Road::numRoadDirections> expectedRoads;
-    std::vector<LightConfig> configSchedule;
+    std::vector<LightConfig*> configSchedule;
+    int configScheduleIdx;
+    int numUnfinishedLights;        ///< The number of lights for the current config that have not yet turned red     
 
     /**
      * @brief Checks to see if this intended new turn for a new road is compatible with the current state of the
@@ -72,6 +74,15 @@ protected:
     */
     void printHelper(Road::RoadDirection dir, std::string& outStr);
 
+    /**
+     * @brief Sets the Intersection to the "idx" LightConfig in the schedule vector.
+     *
+     * @param idx       The idx of the desired LightConfig in configSchedule vector
+     *
+     * @return false if any of the specified Roads are NULL of if an unhandled LightConfig::Option is requested.
+    */
+    bool setLightConfig(int idx);
+
 public:
     Intersection();
 
@@ -90,10 +101,29 @@ public:
 
     /**
      * @brief Call tick() for all TrafficLights in this Intersection.
+     *
+     * @return the number of unfinished lights in the Intersection.
     */
-    void tick();
+    int tick();
 
+    /**
+     * @brief Add a LightConfig to the end of the Intersections current configSchedule vector
+     *
+     * @param configOpt     The LightConfig::Option specifying which type of configuration will be set
+     * @param direction     The RoadDirection of "configOpt". The road in which the config option is being applied to
+     * @param duration      The duration the Intersection will remain in this configuration
+     *
+     * @return true upon success
+    */
     bool schedule(LightConfig::Option configOpt, Road::RoadDirection direction, int duration);
+    bool schedule(LightConfig& config);
+
+    /**
+     * @brief Begins light operation for the intersection, looping through all LightConfig's scheduled indefinetly.
+     *
+     * @return false if there is an error
+    */
+    bool start();
 
     /**
      * @brief Sets two opposite roads green. Allowing both straight and right Road::turnOptions for both Roads.
@@ -181,6 +211,8 @@ public:
      * @return Vector of active TrafficLight pointers
     */
     std::vector<TrafficLight*> getLights();
+
+    int getNumUnfinishedLights(){ return numUnfinishedLights; }
     
     /**
     * @brief Prints the current state of all the lights in the intersection in an

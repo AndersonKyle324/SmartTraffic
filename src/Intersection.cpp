@@ -6,6 +6,8 @@
 
 Intersection::Intersection(){
     numRoads = 0;
+    configScheduleIdx = 0;
+    numUnfinishedLights = 0;
 
     for(int i=0; i<Road::numRoadDirections; i++){
         roads[i] = NULL;
@@ -16,6 +18,10 @@ Intersection::Intersection(){
 Intersection::~Intersection(){
     for(Road* rd : roads){
         delete rd;
+    }
+
+    for(LightConfig *cfg : configSchedule){
+        delete cfg;
     }
 }
 
@@ -37,28 +43,91 @@ bool Intersection::validate(){
     return true;
 }
 
-void Intersection::tick(){
+int Intersection::tick(){
     TrafficLight *roadLight;
 
     for(Road *rd : roads){
-        if(rd != NULL){
-            for(int turnOpt=0; turnOpt < Road::numTurnOptions; turnOpt++){
-                roadLight = rd->getLight((Road::TurnOption)turnOpt);
-                
-                if(roadLight != NULL){
-                    roadLight->tick();
+        /// Skip Road if its NULL
+        if(rd == NULL){
+            continue;
+        }
+
+        for(int turnOpt=0; turnOpt < Road::numTurnOptions; turnOpt++){
+            roadLight = rd->getLight((Road::TurnOption)turnOpt);
+            
+            /// Skip light if its NULL
+            if(roadLight == NULL){
+                continue;
+            }
+            
+            /// If light is already red, it doesnt need to be ticked
+            if(roadLight->getColor() != TrafficLight::red){
+                roadLight->tick();
+
+                /// If light transitions to red, decrement numUnfinishedLights in Intersection
+                if(roadLight->getColor() == TrafficLight::red){
+                    if(numUnfinishedLights <= 0){
+                        throw std::out_of_range("Intersection reached numUnfinishedLights of 0 before finishing all lights in Intersection::tick()");
+                    }
+
+                    numUnfinishedLights--;
                 }
             }
         }
     }
+
+    return numUnfinishedLights;
 }
 
 bool Intersection::schedule(LightConfig::Option configOpt, Road::RoadDirection direction, int duration){
-    LightConfig interConfig = LightConfig(configOpt, direction, duration);
+    LightConfig *interConfig = new LightConfig(configOpt, direction, duration);
 
-    configSchedule.push_back(interConfig);
+    try{
+        configSchedule.push_back(interConfig);
+    }
+    catch(...){
+        throw std::runtime_error("Intersection::schedule() error adding new LightConfig to schedule");
+        return false;
+    }
 
     return true;
+}
+
+bool Intersection::schedule(LightConfig& config){
+    return schedule(config.getConfigOption(), config.getDirection(), config.getDuration());
+}
+
+
+/*bool Intersection::start(){
+
+}
+*/
+
+bool Intersection::setLightConfig(int idx){
+    bool configSuccess = false;
+    LightConfig *config;
+    
+    config = configSchedule.at(idx);
+
+    switch(config->getConfigOption()){
+        case LightConfig::doubleGreen:
+            configSuccess = doubleGreen(config->getDirection(), config->getDuration());
+            break;
+
+        case LightConfig::singleGreen:
+            configSuccess = singleGreen(config->getDirection(), config->getDuration());
+            break;
+
+        case LightConfig::doubleGreenLeft:
+            configSuccess = doubleGreenLeft(config->getDirection(), config->getDuration());
+            break;
+
+        default:
+            throw std::out_of_range("Intersection::nextLightConfig() encountered an unhandled LightConfig::Option");
+            break;
+    }
+
+    return configSuccess;
 }
 
 bool Intersection::doubleGreen(Road::RoadDirection dir, int onDuration){
@@ -69,8 +138,9 @@ bool Intersection::doubleGreen(Road::RoadDirection dir, int onDuration){
         return false;
     }
 
-    rd->setGreen(onDuration);
-    oppRd->setGreen(onDuration);
+    /// If light is set properly, add an unfinished light
+    numUnfinishedLights += rd->setGreen(onDuration);
+    numUnfinishedLights += oppRd->setGreen(onDuration);
     
     return true;
 }
@@ -82,8 +152,8 @@ bool Intersection::singleGreen(Road::RoadDirection dir, int onDuration){
         return false;
     }
 
-    rd->setGreen(onDuration);
-    rd->setGreenLeft(onDuration);
+    numUnfinishedLights += rd->setGreen(onDuration);
+    numUnfinishedLights += rd->setGreenLeft(onDuration);
     
     return true;
 }
@@ -96,8 +166,8 @@ bool Intersection::doubleGreenLeft(Road::RoadDirection dir, int onDuration){
         return false;
     }
 
-    rd->setGreenLeft(onDuration);
-    oppRd->setGreenLeft(onDuration);
+    numUnfinishedLights += rd->setGreenLeft(onDuration);
+    numUnfinishedLights += oppRd->setGreenLeft(onDuration);
     
     return true;
 }

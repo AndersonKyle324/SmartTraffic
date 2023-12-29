@@ -79,18 +79,36 @@ bool Road::startLight(Road::TurnOption turnOpt, int onDuration){
     return false;
 }
 
-bool Road::setGreen(int onDuration){
-    setGreenRight(onDuration);
+int Road::setGreen(int onDuration){
+    int numLightsSet = 0;
 
-    return startLight(straight, onDuration);
+    numLightsSet += setGreenRight(onDuration);
+
+    if(startLight(straight, onDuration)){
+        numLightsSet++;
+    }
+
+    return numLightsSet;
 }
 
-bool Road::setGreenLeft(int onDuration){
-    return startLight(left, onDuration);
+int Road::setGreenLeft(int onDuration){
+    int numLightsSet = 0;
+
+    if(startLight(left, onDuration)){
+        numLightsSet++;
+    }
+
+    return numLightsSet;
 }
 
-bool Road::setGreenRight(int onDuration){
-    return startLight(right, onDuration);
+int Road::setGreenRight(int onDuration){
+    int numLightsSet = 0;
+
+    if(startLight(right, onDuration)){
+        numLightsSet++;
+    }
+
+    return numLightsSet;
 }
 
 int Road::setAllLightDurations(int onDur, int redDur, int yellowDur){

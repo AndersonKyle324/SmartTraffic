@@ -109,27 +109,27 @@ public:
      *
      * @param onDuration    The onDuration to be set for the light(s)
      *
-     * @return false if the straight TurnOption is unavailable.
+     * @return the number of lights set
     */
-    bool setGreen(int onDuration);
+    int setGreen(int onDuration);
 
     /**
      * @brief Sets this Road's greenLeft light. Allows left turns.
      *
      * @param onDuration    The onDuration to be set for the light(s)
      *
-     * @return false if this TurnOption is unavailable.
+     * @return the number of lights set
     */
-    bool setGreenLeft(int onDuration);
+    int setGreenLeft(int onDuration);
 
     /**
      * @brief Sets this Road's greenRight light. Allows right turns.
      *
      * @param onDuration    The onDuration to be set for the light(s)
      *
-     * @return false if this TurnOption is unavailable.
+     * @return the number of lights set
     */
-    bool setGreenRight(int onDuration);
+    int setGreenRight(int onDuration);
 
     /**
      * @brief Sets the on duration, red duration, and yellow duration for all lights in the road.

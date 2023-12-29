@@ -15,8 +15,10 @@ public:
 
     /**
      * @brief The possible configurations for a Road or Roads in an Intersection.
+     *
+     * @warning if a new option is added, a new switch case must be added to Intersection::nextLightConfig()
     */
-    enum Option {doubleRoad, singleRoad, doubleLeftRoad, numConfigOptions};
+    enum Option {doubleGreen, singleGreen, doubleGreenLeft, numConfigOptions};
 
 protected:
     Option configOpt;               ///< The desired road configuration option
@@ -25,6 +27,8 @@ protected:
 
 public:
     LightConfig(Option interConfigOpt, Road::RoadDirection dir, int newDuration) : configOpt(interConfigOpt), direction(dir), duration(newDuration) {}
+    
+    ~LightConfig() {}
 
     Option getConfigOption() { return configOpt; }
     Road::RoadDirection getDirection(){ return direction; }
