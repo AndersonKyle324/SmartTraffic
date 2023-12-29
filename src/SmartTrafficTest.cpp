@@ -633,6 +633,10 @@ TEST_CASE("TC_13-2_INT_tick_longerDuration"){
     CHECK(right1->getDurationRemaining() == yellowDuration);
 
     for(int i=0; i<yellowDuration; i++){
+        CHECK(left1->getColor() == TrafficLight::yellow);
+        CHECK(straight1->getColor() == TrafficLight::yellow);
+        CHECK(right1->getColor() == TrafficLight::yellow);
+
         numUnfinishedLights = inter.tick();
     }
 
@@ -647,8 +651,11 @@ TEST_CASE("TC_13-2_INT_tick_longerDuration"){
     CHECK(right1->getDurationRemaining() == -1);
 }
 
-TEST_CASE("TC_14-1_IntersectionConfig"){
-    LightConfig config = LightConfig(LightConfig::doubleGreen, Road::north, 3);
+TEST_CASE("TC_14-1_LightConfig"){
+    int onDuration = 10;
+    int yellowDuration = 4;
+
+    LightConfig config = LightConfig(LightConfig::doubleGreen, Road::north, onDuration);
     Intersection inter = Intersection();
 
     inter.addRoad(Road::north, {3, 4, 5});
@@ -656,7 +663,41 @@ TEST_CASE("TC_14-1_IntersectionConfig"){
     inter.addRoad(Road::west, {2, 3, 1});
     inter.addRoad(Road::south, {1, 2, 3});
 
+    // North (Road 1)
+    TrafficLight *left1 = inter.getLight(Road::north, Road::left);
+    TrafficLight *straight1 = inter.getLight(Road::north, Road::straight);
+    TrafficLight *right1 = inter.getLight(Road::north, Road::right);
+    
+    // South (Road 2)
+    TrafficLight *left2 = inter.getLight(Road::south, Road::left);
+
+    // Set the yellowDuration to be different for road1
+    left1->setDuration(TrafficLight::yellow, yellowDuration);
+    straight1->setDuration(TrafficLight::yellow, yellowDuration);
+    right1->setDuration(TrafficLight::yellow, yellowDuration);
+
     inter.schedule(config);
 
+    inter.start();
 
+    CHECK(inter.getNumUnfinishedLights() == 4);
+
+    for(int i=0; i<onDuration; i++){
+        inter.tick();
+    }
+
+    CHECK(inter.getNumUnfinishedLights() == 4);
+
+    // The yellowDuration for road2 is shorter than road1. So road2 lights will finish before road1.
+    for(int i=0; i<left2->yellowDuration; i++){
+        inter.tick();
+    }
+
+    CHECK(inter.getNumUnfinishedLights() == 2);
+
+    for(int i=0; i<(left1->getColorDuration(TrafficLight::yellow) - left2->yellowDuration); i++){
+        inter.tick();
+    }
+    
+    CHECK(inter.getNumUnfinishedLights() == 0);
 }

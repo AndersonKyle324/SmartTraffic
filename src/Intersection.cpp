@@ -98,10 +98,9 @@ bool Intersection::schedule(LightConfig& config){
 }
 
 
-/*bool Intersection::start(){
-
+bool Intersection::start(){
+    return setLightConfig(0);
 }
-*/
 
 bool Intersection::setLightConfig(int idx){
     bool configSuccess = false;
