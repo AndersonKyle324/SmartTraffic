@@ -651,7 +651,7 @@ TEST_CASE("TC_13-2_INT_tick_longerDuration"){
     CHECK(right1->getDurationRemaining() == -1);
 }
 
-TEST_CASE("TC_14-1_LightConfig"){
+TEST_CASE("TC_14-1_INT_schedule_LightConfig"){
     int onDuration = 10;
     int yellowDuration = 4;
 
@@ -677,7 +677,6 @@ TEST_CASE("TC_14-1_LightConfig"){
     right1->setDuration(TrafficLight::yellow, yellowDuration);
 
     inter.schedule(config);
-
     inter.start();
 
     CHECK(inter.getNumUnfinishedLights() == 4);
@@ -699,5 +698,190 @@ TEST_CASE("TC_14-1_LightConfig"){
         inter.tick();
     }
     
+    CHECK(inter.getNumUnfinishedLights() == 0);
+}
+
+TEST_CASE("TC_14-2_INT_schedule_doubleGreenLeft"){
+    int onDuration = 10;
+    int yellowDuration = 4;
+
+    LightConfig config = LightConfig(LightConfig::doubleGreenLeft, Road::east, onDuration);
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {3, 4, 5});
+    inter.addRoad(Road::east, {1, 1, 0});
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
+
+    // East (Road 1)
+    TrafficLight *left1 = inter.getLight(Road::east, Road::left);
+    
+    // West (Road 2)
+    TrafficLight *left2 = inter.getLight(Road::west, Road::left);
+
+    // Set the yellowDuration to be different for road1
+    left1->setDuration(TrafficLight::yellow, yellowDuration);
+
+    inter.schedule(config);
+    inter.start();
+
+    CHECK(inter.getNumUnfinishedLights() == 2);
+
+    for(int i=0; i<onDuration; i++){
+        inter.tick();
+    }
+
+    CHECK(inter.getNumUnfinishedLights() == 2);
+
+    // The yellowDuration for road2 is shorter than road1. So road2 lights will finish before road1.
+    for(int i=0; i<left2->yellowDuration; i++){
+        CHECK(inter.getNumUnfinishedLights() == 2);
+        inter.tick();
+    }
+
+    CHECK(inter.getNumUnfinishedLights() == 1);
+
+    for(int i=0; i<(left1->getColorDuration(TrafficLight::yellow) - left2->yellowDuration); i++){
+        CHECK(inter.getNumUnfinishedLights() == 1);
+        inter.tick();
+    }
+    
+    CHECK(inter.getNumUnfinishedLights() == 0);
+}
+
+TEST_CASE("TC_14-3_INT_schedule_nextLightConfig"){
+    int onDuration1 = 10;
+    int onDuration2 = 5;
+
+    LightConfig config = LightConfig(LightConfig::doubleGreenLeft, Road::east, onDuration1);
+    LightConfig config2 = LightConfig(LightConfig::singleGreen, Road::south, onDuration2);
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {3, 4, 5});
+    inter.addRoad(Road::east, {1, 1, 0});
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
+
+    // East (Road 1)
+    TrafficLight *left1 = inter.getLight(Road::east, Road::left);
+    
+    // South (Road 2)
+    TrafficLight *left2 = inter.getLight(Road::south, Road::left);
+
+    inter.schedule(config);
+    inter.schedule(config2);
+    inter.start();
+
+    // The first LightConfig: East left and West left are on
+    CHECK(inter.getNumUnfinishedLights() == 2);
+
+    for(int i=0; i<onDuration1; i++){
+        inter.tick();
+    }
+
+    CHECK(inter.getNumUnfinishedLights() == 2);
+
+    for(int i=0; i<left1->yellowDuration; i++){
+        CHECK(inter.getNumUnfinishedLights() == 2);
+        inter.tick();
+    }
+
+    CHECK(inter.getNumUnfinishedLights() == 0);
+
+    // Go to next light config
+    inter.nextLightConfig();
+
+    // The second LightConfig: South left, straight, and right are on.
+    CHECK(inter.getNumUnfinishedLights() == 3);
+
+    for(int i=0; i<onDuration2; i++){
+        inter.tick();
+    }
+
+    CHECK(inter.getNumUnfinishedLights() == 3);
+
+    for(int i=0; i<left2->yellowDuration; i++){
+        CHECK(inter.getNumUnfinishedLights() == 3);
+        inter.tick();
+    }
+
+    CHECK(inter.getNumUnfinishedLights() == 0);
+}
+
+TEST_CASE("TC_14-3_INT_schedule_nextLightConfig_loop"){
+    int onDuration1 = 10;
+    int onDuration2 = 5;
+
+    LightConfig config = LightConfig(LightConfig::doubleGreenLeft, Road::east, onDuration1);
+    LightConfig config2 = LightConfig(LightConfig::singleGreen, Road::south, onDuration2);
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {3, 4, 5});
+    inter.addRoad(Road::east, {1, 1, 0});
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
+
+    // East (Road 1)
+    TrafficLight *left1 = inter.getLight(Road::east, Road::left);
+    
+    // South (Road 2)
+    TrafficLight *left2 = inter.getLight(Road::south, Road::left);
+
+    inter.schedule(config);
+    inter.schedule(config2);
+    inter.start();
+
+    // The first LightConfig: East left and West left are on
+    CHECK(inter.getNumUnfinishedLights() == 2);
+
+    for(int i=0; i<onDuration1; i++){
+        inter.tick();
+    }
+
+    CHECK(inter.getNumUnfinishedLights() == 2);
+
+    for(int i=0; i<left1->yellowDuration; i++){
+        CHECK(inter.getNumUnfinishedLights() == 2);
+        inter.tick();
+    }
+
+    CHECK(inter.getNumUnfinishedLights() == 0);
+
+    // Go to next light config
+    inter.nextLightConfig();
+
+    // The second LightConfig: South left, straight, and right are on.
+    CHECK(inter.getNumUnfinishedLights() == 3);
+
+    for(int i=0; i<onDuration2; i++){
+        inter.tick();
+    }
+
+    CHECK(inter.getNumUnfinishedLights() == 3);
+
+    for(int i=0; i<left2->yellowDuration; i++){
+        CHECK(inter.getNumUnfinishedLights() == 3);
+        inter.tick();
+    }
+
+    CHECK(inter.getNumUnfinishedLights() == 0);
+    
+    // Loop back to first light config
+    inter.nextLightConfig();
+    
+    // Loop back to the first LightConfig: East left and West left are on
+    CHECK(inter.getNumUnfinishedLights() == 2);
+
+    for(int i=0; i<onDuration1; i++){
+        inter.tick();
+    }
+
+    CHECK(inter.getNumUnfinishedLights() == 2);
+
+    for(int i=0; i<left1->yellowDuration; i++){
+        CHECK(inter.getNumUnfinishedLights() == 2);
+        inter.tick();
+    }
+
     CHECK(inter.getNumUnfinishedLights() == 0);
 }

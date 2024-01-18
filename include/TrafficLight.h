@@ -5,6 +5,7 @@
 #include <iostream>
 
 #define DEFAULT_ON_DURATION (1)
+#define DEFAULT_YELLOW_DURATION (1)
 
 /**
  * @class TrafficLight
@@ -20,7 +21,7 @@ public:
      */
     enum AvailableColors {green, greenLeft, greenRight, yellow, red, numColors};
 
-    int yellowDuration = 1; ///< The duration of the yellow light.
+    int yellowDuration = DEFAULT_YELLOW_DURATION; ///< The duration of the yellow light.
 
 protected:
     AvailableColors onColor; ///< The color direction of the traffic light.

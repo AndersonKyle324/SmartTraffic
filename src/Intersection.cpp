@@ -129,6 +129,17 @@ bool Intersection::setLightConfig(int idx){
     return configSuccess;
 }
 
+bool Intersection::nextLightConfig(){
+    configScheduleIdx++;
+
+    if(configScheduleIdx >= configSchedule.size()){
+        /// Loop the LightConfigs in configSchedule
+        configScheduleIdx = 0;
+    }
+
+    return setLightConfig(configScheduleIdx);
+}
+
 bool Intersection::doubleGreen(Road::RoadDirection dir, int onDuration){
     Road *rd = roads[dir];
     Road *oppRd = roads[Road::roadOppositeOf(dir)];
@@ -319,9 +330,9 @@ void Intersection::printHelper(Road::RoadDirection dir, std::string& outStr){
             outStr.append(templateStrMid);
             outStr.append(templateStrMid);
 
-            slotLeft = SLOT_WEST;
-            slotStr = SLOT_WEST + LEN_LINE;         /// Same position one line down
-            slotRight = SLOT_WEST + (LEN_LINE * 2); /// Same position two lines down
+            slotLeft = SLOT_WEST + (LEN_LINE * 2);  /// Bottom position
+            slotStr = SLOT_WEST + LEN_LINE;         /// Middle position
+            slotRight = SLOT_WEST;                  /// Top position
             break;
 
         default:
@@ -350,6 +361,7 @@ void Intersection::print(){
     std::string northStr, westStr, eastStr, southStr;
     std::string crosswalkStr =    "-----------|===========================================================|-----------\n";
     std::string dividerStr =      "===========|                             O                             |===========\n";
+    std::string endSeparator =    "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n";
 
     printHelper(Road::north, northStr);
     printHelper(Road::west, westStr);
@@ -363,5 +375,6 @@ void Intersection::print(){
     std::cout << eastStr;
     std::cout << crosswalkStr;
     std::cout << southStr;
+    std::cout << endSeparator;
     std::cout << std::endl;
 }

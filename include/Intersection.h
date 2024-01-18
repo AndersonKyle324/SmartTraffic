@@ -33,7 +33,7 @@ protected:
     std::array<Road*, Road::numRoadDirections> roads;
     std::array<bool, Road::numRoadDirections> expectedRoads;
     std::vector<LightConfig*> configSchedule;
-    int configScheduleIdx;
+    unsigned long configScheduleIdx;
     int numUnfinishedLights;        ///< The number of lights for the current config that have not yet turned red     
 
     /**
@@ -124,6 +124,14 @@ public:
      * @return false if there is an error
     */
     bool start();
+
+    /**
+     * @brief Sets the Intersection to the next scheduled LightConfig in configSchedule. If the last
+     *          LightConfig is reached, loop back to the first LightConfig.
+     * 
+     * @return false if the scheduled LightConfig fails
+    */
+    bool nextLightConfig();
 
     /**
      * @brief Sets two opposite roads green. Allowing both straight and right Road::turnOptions for both Roads.

@@ -1,6 +1,6 @@
 CC = g++
 INCLUDE_DIR = include
-CFLAGS = -Wall -Werror -I$(INCLUDE_DIR)
+CFLAGS = -Wall -Werror -I$(INCLUDE_DIR) 
 SRC_DIR = src
 BIN_DIR = bin
 
@@ -19,6 +19,9 @@ TARGET = $(BIN_DIR)/SmartTraffic.exe
 TEST_TARGET = $(BIN_DIR)/tests.exe
 
 all: $(TARGET)
+
+run: $(TARGET)
+	@./$(TARGET)
 
 $(TARGET): $(REG_OBJS)
 	$(CC) $(CFLAGS) -o $@ $^

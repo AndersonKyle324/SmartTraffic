@@ -8,7 +8,6 @@
  * @class LightConfig
  * @brief Defines which lights in an Intersection are on as well as for how long
             the Intersection should remain in this configuration.
-
 */
 class LightConfig{
 public:
@@ -16,7 +15,7 @@ public:
     /**
      * @brief The possible configurations for a Road or Roads in an Intersection.
      *
-     * @warning if a new option is added, a new switch case must be added to Intersection::nextLightConfig()
+     * @warning if a new option is added, a new switch case must be added to Intersection::setLightConfig()
     */
     enum Option {doubleGreen, singleGreen, doubleGreenLeft, numConfigOptions};
 

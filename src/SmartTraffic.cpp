@@ -5,6 +5,8 @@
 #include "Intersection.h"
 
 int main(int argc, char *argv[]){
+    int numConfigs;
+    int onDuration = 3;
     Intersection inter = Intersection();
 
     inter.addRoad(Road::north, {3, 4, 5});
@@ -12,13 +14,32 @@ int main(int argc, char *argv[]){
     inter.addRoad(Road::west, {2, 3, 1});
     inter.addRoad(Road::south, {1, 2, 3});
 
-    if(inter.validate(std::cout) == false){
+    if(inter.validate() == false){
         return 1;
     }
     
+    inter.schedule(LightConfig::doubleGreen, Road::north, onDuration);
+    inter.schedule(LightConfig::doubleGreenLeft, Road::north, onDuration);
+    inter.schedule(LightConfig::doubleGreen, Road::east, onDuration);
+    inter.schedule(LightConfig::singleGreen, Road::west, onDuration);
+
+    inter.start();
     inter.print();
 
-    
+    for(numConfigs=0; numConfigs<6; numConfigs++){
+        for(int i=0; i<onDuration; i++){
+            inter.tick();
+            inter.print();
+        }
+
+        for(int j=0; j<DEFAULT_YELLOW_DURATION; j++){
+            inter.tick();
+            inter.print();
+        }
+
+        inter.nextLightConfig();
+        inter.print();
+    }
 
     return 0;
 }
