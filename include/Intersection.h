@@ -9,6 +9,7 @@
 
 #define MIN_NUM_ROADS    (3)
 
+/// #defines used for the print() function
 #define MAX_LEN_RIGHT    (10)
 #define MAX_LEN_LEFT     (9)
 #define MAX_LEN_STR      (6)
@@ -29,12 +30,13 @@ public:
     enum IntersectionError {success, unknown, alreadyExists, turnNotPossible};
 
 protected:
-    int numRoads;
-    std::array<Road*, Road::numRoadDirections> roads;
-    std::array<bool, Road::numRoadDirections> expectedRoads;
-    std::vector<LightConfig*> configSchedule;
-    unsigned long configScheduleIdx;
-    int numUnfinishedLights;        ///< The number of lights for the current config that have not yet turned red     
+    int numRoads;                                               ///< Number of Roads in the Intersection
+    std::array<Road*, Road::numRoadDirections> roads;           ///< Array of the Intersection Road pointers
+    std::array<bool, Road::numRoadDirections> expectedRoads;    ///< Array indicating what roads still need to added to the intersection for it to be positively validated.
+    std::vector<LightConfig*> configSchedule;                   ///< The vector containing the LightConfig schedule in order.
+    unsigned long configScheduleIdx;                            ///< The index in configSchedule indicating the LightConfig the Intersecion is currently on.
+    int numUnfinishedLights;                                    ///< The number of lights for the current config that have not yet turned red     
+    unsigned long ticksSinceStart;                              ///< Total number of times tick() has been called on this Intersection
 
     /**
      * @brief Checks to see if this intended new turn for a new road is compatible with the current state of the
@@ -221,6 +223,13 @@ public:
     std::vector<TrafficLight*> getLights();
 
     int getNumUnfinishedLights(){ return numUnfinishedLights; }
+
+    /**
+     * @brief Gets ticksSinceStart i.e. the current time
+     * 
+     * @return ticksSinceStart unsigned long
+    */
+    unsigned long time(){ return ticksSinceStart; }
     
     /**
     * @brief Prints the current state of all the lights in the intersection in an

@@ -8,6 +8,7 @@ Intersection::Intersection(){
     numRoads = 0;
     configScheduleIdx = 0;
     numUnfinishedLights = 0;
+    ticksSinceStart = 0;
 
     for(int i=0; i<Road::numRoadDirections; i++){
         roads[i] = NULL;
@@ -75,6 +76,8 @@ int Intersection::tick(){
             }
         }
     }
+
+    ticksSinceStart++;
 
     return numUnfinishedLights;
 }
@@ -368,6 +371,7 @@ void Intersection::print(){
     printHelper(Road::east, eastStr);
     printHelper(Road::south, southStr);
 
+    std::cout << "Time: " << time() << std::endl;
     std::cout << northStr;
     std::cout << crosswalkStr;
     std::cout << westStr;
