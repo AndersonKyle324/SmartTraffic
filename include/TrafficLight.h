@@ -6,12 +6,16 @@
 
 #define DEFAULT_ON_DURATION (1)
 #define DEFAULT_YELLOW_DURATION (1)
+#define DEFAULT_NUM_LANES (1)
+#define DEFAULT_MAX_LANE_VEHICLES (5)
+#define DEFAULT_TIME_TO_CROSS (2)   
 
 /**
  * @class TrafficLight
  * @brief Represents a traffic light.
  * 
- * This class models a traffic light with various colors and durations.
+ * This class models a traffic light with various colors and durations as well as the lanes
+ * that are directed by this light, including the vehicles queued in these lanes.
  */
 class TrafficLight{
 
@@ -28,12 +32,29 @@ protected:
     AvailableColors color; ///< The current color of the traffic light.
     int durationRemaining; ///< The remaining duration for the current color.
     std::array<int, numColors> colorDuration; ///< Array of durations for each color.
+    
+    /// Variables associated with the lanes directed by this light.
+    unsigned int numLanes;   ///< The number of lanes being directed by this light.
+    unsigned int maxVehiclesPerLane;    ///< The max number of vehicles allowed per lane
+    unsigned int queuedVehicles;    ///< The number of vehicles currently waiting at this light.
+    unsigned long numVehiclesDirected;   ///< The total number of vehicles directed by this light that have crossed through the intersection.
+    unsigned int timeToCross;   ///< The number of ticks it takes for a vehicle to cross through the intersection for this light.
+    unsigned int currentVehicleProgress;                        ///< The number of ticks remaining for the vehicle(s) currently in the intersection to cross.
 
 public:
     /**
      * @brief Default constructor for TrafficLight.
      */
-    TrafficLight(): color(red), durationRemaining(-1), colorDuration{0, 0, 0, yellowDuration, -1} {};
+    TrafficLight(): color(red), 
+                    durationRemaining(-1), 
+                    colorDuration{0, 0, 0, yellowDuration, -1}, 
+                    numLanes(DEFAULT_NUM_LANES), 
+                    maxVehiclesPerLane(DEFAULT_MAX_LANE_VEHICLES), 
+                    queuedVehicles(0), 
+                    numVehiclesDirected(0),
+                    timeToCross(DEFAULT_TIME_TO_CROSS),
+                    currentVehicleProgress(0)
+                    {};
 
     /**
      * @brief Construct a new Traffic Light object specifying color direction and durations
@@ -41,8 +62,9 @@ public:
      * @param aOnColor   color direction of onColor
      * @param onColorDur duration of the onColor
      * @param redDur     duration of the red light
+     * @param lanes      number of lanes directed by this light
      */
-    TrafficLight(AvailableColors aOnColor, int onColorDur, int redDur);
+    TrafficLight(AvailableColors aOnColor, int onColorDur, int redDur, unsigned int lanes=DEFAULT_NUM_LANES);
 
     friend class Intersection; ///< Friend class Intersection.
 
@@ -61,6 +83,8 @@ public:
      * @warning if durationRemaining is negative, it will remain in the same state
      */
     int tick();
+
+    unsigned int tickVehicleQueue();
 
     /**
      * @brief Determines and sets the next state of the TrafficLight based on the current color and duration.

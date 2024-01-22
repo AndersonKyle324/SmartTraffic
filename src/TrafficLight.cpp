@@ -4,10 +4,11 @@
 
 #include "TrafficLight.h"
 
-TrafficLight::TrafficLight(AvailableColors aOnColor, int onColorDur, int redDur) : TrafficLight(){
+TrafficLight::TrafficLight(AvailableColors aOnColor, int onColorDur, int redDur, unsigned int lanes) : TrafficLight(){
     onColor = aOnColor;
     setDuration(aOnColor, onColorDur);
     setDuration(red, redDur);
+    numLanes = lanes;
 }
 
 TrafficLightLeft::TrafficLightLeft(){
@@ -27,7 +28,28 @@ int TrafficLight::tick(){
 
     nextState();
 
+    tickVehicleQueue();
+
     return durationRemaining;
+}
+
+unsigned int TrafficLight::tickVehicleQueue(){
+    int numVehiclesCurrentlyCrossing = 0;   /// For this light only
+
+    /// Assumes a car will not enter the intersection if the light is yellow.
+    if(queuedVehicles > 0 && (color == green || color == greenLeft || color == greenRight) && currentVehicleProgress == 0){
+        numVehiclesCurrentlyCrossing = (queuedVehicles > numLanes) ? numLanes : queuedVehicles;
+        queuedVehicles -= numVehiclesCurrentlyCrossing;
+        numVehiclesDirected += numVehiclesCurrentlyCrossing;
+
+        currentVehicleProgress = timeToCross;
+    }
+
+    if(currentVehicleProgress > 0){
+        currentVehicleProgress--;
+    }
+
+    return queuedVehicles;
 }
 
 void TrafficLight::resetDurationRemaining(){
