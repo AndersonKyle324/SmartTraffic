@@ -6,9 +6,6 @@
 
 #define DEFAULT_ON_DURATION (1)
 #define DEFAULT_YELLOW_DURATION (1)
-#define DEFAULT_NUM_LANES (1)
-#define DEFAULT_MAX_LANE_VEHICLES (5)
-#define DEFAULT_TIME_TO_CROSS (2)   
 
 /**
  * @class TrafficLight
@@ -34,12 +31,7 @@ protected:
     std::array<int, numColors> colorDuration; ///< Array of durations for each color.
     
     /// Variables associated with the lanes directed by this light.
-    unsigned int numLanes;   ///< The number of lanes being directed by this light.
-    unsigned int maxVehiclesPerLane;    ///< The max number of vehicles allowed per lane
-    unsigned int queuedVehicles;    ///< The number of vehicles currently waiting at this light.
     unsigned long numVehiclesDirected;   ///< The total number of vehicles directed by this light that have crossed through the intersection.
-    unsigned int timeToCross;   ///< The number of ticks it takes for a vehicle to cross through the intersection for this light.
-    unsigned int currentVehicleProgress;                        ///< The number of ticks remaining for the vehicle(s) currently in the intersection to cross.
 
 public:
     /**
@@ -48,12 +40,7 @@ public:
     TrafficLight(): color(red), 
                     durationRemaining(-1), 
                     colorDuration{0, 0, 0, yellowDuration, -1}, 
-                    numLanes(DEFAULT_NUM_LANES), 
-                    maxVehiclesPerLane(DEFAULT_MAX_LANE_VEHICLES), 
-                    queuedVehicles(0), 
-                    numVehiclesDirected(0),
-                    timeToCross(DEFAULT_TIME_TO_CROSS),
-                    currentVehicleProgress(0)
+                    numVehiclesDirected(0)
                     {};
 
     /**
@@ -64,7 +51,7 @@ public:
      * @param redDur     duration of the red light
      * @param lanes      number of lanes directed by this light
      */
-    TrafficLight(AvailableColors aOnColor, int onColorDur, int redDur, unsigned int lanes=DEFAULT_NUM_LANES);
+    TrafficLight(AvailableColors aOnColor, int onColorDur, int redDur);
 
     friend class Intersection; ///< Friend class Intersection.
 
@@ -83,8 +70,6 @@ public:
      * @warning if durationRemaining is negative, it will remain in the same state
      */
     int tick();
-
-    unsigned int tickVehicleQueue();
 
     /**
      * @brief Determines and sets the next state of the TrafficLight based on the current color and duration.
@@ -119,6 +104,14 @@ public:
      * @return The current color.
      */
     AvailableColors getColor(){ return color; };
+
+    /**
+     * @brief Checks if light is any form of green (green, greenleft, or greenRight)
+     * 
+     * @return true light is green, greenLeft, or greenRight
+     * @return false light is yellow or red
+     */
+    bool isGreen(){ return (getColor() == green || getColor() == greenLeft || getColor() == greenRight); }
 
     /**
      * @brief Gets the onColor of the traffic light.

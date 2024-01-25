@@ -1,13 +1,12 @@
-
 #ifndef ROAD_H
 #define ROAD_H
 
 #include "TrafficLight.h"
+#include "TurnOption.h"
 
 class Road{
 public:
     enum RoadDirection {north, east, south, west, numRoadDirections};
-    enum TurnOption {left, straight, right, numTurnOptions};
 
     /**
     * @brief Overloaded << operator to output Road::RoadDirection to a stream.
@@ -33,26 +32,10 @@ public:
         return true;
     }
 
-    /**
-     * @brief Checks "opt" is within the allowable range of TurnOption values
-     * 
-     * @param opt   The TurnOption to be checked
-     * @return true if "opt" is between 0 and (Road::numTurnOptions - 1)
-     */
-    static bool isValidTurnOption(TurnOption& opt){
-        if(opt >= Road::numTurnOptions || opt < 0){
-            throw std::out_of_range("TurnOption out of range");
-            return false;
-        }
-
-        return true;
-    }
-
 protected:
-    RoadDirection direction;                                /// The compass direction in which the road is facing when cars are at a stop
-    std::array<int, numTurnOptions> lanesPerTurnOption;     /// Number of lanes in each turn option
-    std::array<TrafficLight*, numTurnOptions> lights;       /// TrafficLight associated with each TurnOption
-    bool exitRoad;                                          /// Road is an intersection exit only, can only 
+    RoadDirection direction;                                            /// The compass direction in which the road is facing when cars are at a stop
+    std::array<TurnOption*, TurnOption::numTurnOptions> turnOptions;            /// Array of TurnOptions. Contains lane, TrafficLight, and vehicle info.
+    bool exitRoad;                                                      /// Road is an intersection exit only, can only 
 
     /**
      * @brief Calls start() on the "turnOpt" TrafficLight.
@@ -62,7 +45,7 @@ protected:
      * 
      * @return false if the light is unavailable (NULL)
     */
-    bool startLight(Road::TurnOption turnOpt, int onDuration);
+    bool startLight(TurnOption::Type turnOpt, int onDuration);
 
 public:
     /**
@@ -73,7 +56,7 @@ public:
      * @param numLanesArr       Number of lanes for each TurnOption
      * @param onDuration        The duration for the onColor for all lights in this Road
      */
-    Road(RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr, int onDuration);
+    Road(RoadDirection dir, std::array<int, TurnOption::numTurnOptions> numLanesArr, int onDuration);
     
     /**
      * @brief Destroy the Road object. Deletes all TrafficLights in lights array.
@@ -145,8 +128,8 @@ public:
     int setAllLightDurations(int onDur, int redDur, int yellowDur=-1);
 
     RoadDirection getDirection(){ return direction; };
-    int getNumLanes(TurnOption opt);
-    TrafficLight* getLight(TurnOption opt);
+    int getNumLanes(TurnOption::Type opt);
+    TrafficLight* getLight(TurnOption::Type opt);
 
     /**
      * @brief Gets a std::vector of all non-NULL TrafficLights in this Road.

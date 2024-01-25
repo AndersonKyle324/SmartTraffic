@@ -288,25 +288,25 @@ TEST_CASE("TC_8-1_RD"){
     int retVal;
     Road rd = Road(Road::north, {1,2,3}, DEFAULT_ON_DURATION);
 
-    retVal = rd.getNumLanes(Road::left);
+    retVal = rd.getNumLanes(TurnOption::left);
     CHECK(retVal == 1);
-    retVal = rd.getNumLanes(Road::straight);
+    retVal = rd.getNumLanes(TurnOption::straight);
     CHECK(retVal == 2);
-    retVal = rd.getNumLanes(Road::right);
+    retVal = rd.getNumLanes(TurnOption::right);
     CHECK(retVal == 3);
 
-    CHECK(rd.getLight(Road::left) != NULL);
-    CHECK(rd.getLight(Road::straight) != NULL);
-    CHECK(rd.getLight(Road::right) != NULL);
+    CHECK(rd.getLight(TurnOption::left) != NULL);
+    CHECK(rd.getLight(TurnOption::straight) != NULL);
+    CHECK(rd.getLight(TurnOption::right) != NULL);
 }
 
 TEST_CASE("TC_9-1_RD_setGreen"){
     int retVal;
     Road rd = Road(Road::north, {1,2,3}, DEFAULT_ON_DURATION);
 
-    TrafficLight *left = rd.getLight(Road::left);
-    TrafficLight *straight = rd.getLight(Road::straight);
-    TrafficLight *right = rd.getLight(Road::right);
+    TrafficLight *left = rd.getLight(TurnOption::left);
+    TrafficLight *straight = rd.getLight(TurnOption::straight);
+    TrafficLight *right = rd.getLight(TurnOption::right);
 
     CHECK(left->getColor() == TrafficLight::red);
     CHECK(straight->getColor() == TrafficLight::red);
@@ -339,20 +339,20 @@ TEST_CASE("TC_10-1_INT_singleGreen"){
 
     //CHECK(inter.validate(std::cout) == true);
 
-    CHECK(inter.getLight(Road::north, Road::left)->getColor() == TrafficLight::red);
-    CHECK(inter.getLight(Road::north, Road::straight)->getColor() == TrafficLight::red);
-    CHECK(inter.getLight(Road::north, Road::right)->getColor() == TrafficLight::red);
+    CHECK(inter.getLight(Road::north, TurnOption::left)->getColor() == TrafficLight::red);
+    CHECK(inter.getLight(Road::north, TurnOption::straight)->getColor() == TrafficLight::red);
+    CHECK(inter.getLight(Road::north, TurnOption::right)->getColor() == TrafficLight::red);
 
     retVal = inter.singleGreen(Road::north, 4);
     CHECK(retVal == true);
 
-    CHECK(inter.getLight(Road::north, Road::left)->getColor() == TrafficLight::greenLeft);
-    CHECK(inter.getLight(Road::north, Road::straight)->getColor() == TrafficLight::green);
-    CHECK(inter.getLight(Road::north, Road::right)->getColor() == TrafficLight::greenRight);
+    CHECK(inter.getLight(Road::north, TurnOption::left)->getColor() == TrafficLight::greenLeft);
+    CHECK(inter.getLight(Road::north, TurnOption::straight)->getColor() == TrafficLight::green);
+    CHECK(inter.getLight(Road::north, TurnOption::right)->getColor() == TrafficLight::greenRight);
 
-    CHECK(inter.getLight(Road::north, Road::left)->getDurationRemaining() == 4);
-    CHECK(inter.getLight(Road::north, Road::straight)->getDurationRemaining() == 4);
-    CHECK(inter.getLight(Road::north, Road::right)->getDurationRemaining() == 4);
+    CHECK(inter.getLight(Road::north, TurnOption::left)->getDurationRemaining() == 4);
+    CHECK(inter.getLight(Road::north, TurnOption::straight)->getDurationRemaining() == 4);
+    CHECK(inter.getLight(Road::north, TurnOption::right)->getDurationRemaining() == 4);
 }
 
 TEST_CASE("TC_10-2_INT_singleGreen_missingTurns"){
@@ -366,14 +366,14 @@ TEST_CASE("TC_10-2_INT_singleGreen_missingTurns"){
 
     //CHECK(inter.validate(std::cout) == true);
 
-    CHECK(inter.getLight(Road::east, Road::left) == NULL);
-    CHECK(inter.getLight(Road::east, Road::straight)->getColor() == TrafficLight::red);
-    CHECK(inter.getLight(Road::east, Road::right) == NULL);
+    CHECK(inter.getLight(Road::east, TurnOption::left) == NULL);
+    CHECK(inter.getLight(Road::east, TurnOption::straight)->getColor() == TrafficLight::red);
+    CHECK(inter.getLight(Road::east, TurnOption::right) == NULL);
 
     retVal = inter.singleGreen(Road::east, 1);
     CHECK(retVal == true);
 
-    CHECK(inter.getLight(Road::east, Road::straight)->getColor() == TrafficLight::green);
+    CHECK(inter.getLight(Road::east, TurnOption::straight)->getColor() == TrafficLight::green);
 }
 
 TEST_CASE("TC_10-3_INT_singleGreen_missingRoad"){
@@ -401,14 +401,14 @@ TEST_CASE("TC_11-1_INT_doubleGreen"){
     inter.addRoad(Road::south, {1, 2, 3});
 
     // North
-    TrafficLight *left1 = inter.getLight(Road::north, Road::left);
-    TrafficLight *straight1 = inter.getLight(Road::north, Road::straight);
-    TrafficLight *right1 = inter.getLight(Road::north, Road::right);
+    TrafficLight *left1 = inter.getLight(Road::north, TurnOption::left);
+    TrafficLight *straight1 = inter.getLight(Road::north, TurnOption::straight);
+    TrafficLight *right1 = inter.getLight(Road::north, TurnOption::right);
     
     // South
-    TrafficLight *left2 = inter.getLight(Road::south, Road::left);
-    TrafficLight *straight2 = inter.getLight(Road::south, Road::straight);
-    TrafficLight *right2 = inter.getLight(Road::south, Road::right);
+    TrafficLight *left2 = inter.getLight(Road::south, TurnOption::left);
+    TrafficLight *straight2 = inter.getLight(Road::south, TurnOption::straight);
+    TrafficLight *right2 = inter.getLight(Road::south, TurnOption::right);
 
     //CHECK(inter.validate(std::cout) == true);
 
@@ -440,9 +440,9 @@ TEST_CASE("TC_11-2_INT_doubleGreen_missingOppositeRoad"){
     inter.addRoad(Road::south, {1, 2, 3});
 
     // North
-    TrafficLight *left1 = inter.getLight(Road::south, Road::left);
-    TrafficLight *straight1 = inter.getLight(Road::south, Road::straight);
-    TrafficLight *right1 = inter.getLight(Road::south, Road::right);
+    TrafficLight *left1 = inter.getLight(Road::south, TurnOption::left);
+    TrafficLight *straight1 = inter.getLight(Road::south, TurnOption::straight);
+    TrafficLight *right1 = inter.getLight(Road::south, TurnOption::right);
     
     retVal = inter.doubleGreen(Road::south, 1);
     CHECK(retVal == false);
@@ -462,14 +462,14 @@ TEST_CASE("TC_12-1_INT_doubleGreenLeft"){
     inter.addRoad(Road::south, {1, 2, 3});
 
     // North
-    TrafficLight *left1 = inter.getLight(Road::north, Road::left);
-    TrafficLight *straight1 = inter.getLight(Road::north, Road::straight);
-    TrafficLight *right1 = inter.getLight(Road::north, Road::right);
+    TrafficLight *left1 = inter.getLight(Road::north, TurnOption::left);
+    TrafficLight *straight1 = inter.getLight(Road::north, TurnOption::straight);
+    TrafficLight *right1 = inter.getLight(Road::north, TurnOption::right);
     
     // South
-    TrafficLight *left2 = inter.getLight(Road::south, Road::left);
-    TrafficLight *straight2 = inter.getLight(Road::south, Road::straight);
-    TrafficLight *right2 = inter.getLight(Road::south, Road::right);
+    TrafficLight *left2 = inter.getLight(Road::south, TurnOption::left);
+    TrafficLight *straight2 = inter.getLight(Road::south, TurnOption::straight);
+    TrafficLight *right2 = inter.getLight(Road::south, TurnOption::right);
 
     //CHECK(inter.validate(std::cout) == true);
 
@@ -502,14 +502,14 @@ TEST_CASE("TC_13-1_INT_tick"){
     inter.addRoad(Road::south, {1, 2, 3});
 
     // North
-    TrafficLight *left1 = inter.getLight(Road::north, Road::left);
-    TrafficLight *straight1 = inter.getLight(Road::north, Road::straight);
-    TrafficLight *right1 = inter.getLight(Road::north, Road::right);
+    TrafficLight *left1 = inter.getLight(Road::north, TurnOption::left);
+    TrafficLight *straight1 = inter.getLight(Road::north, TurnOption::straight);
+    TrafficLight *right1 = inter.getLight(Road::north, TurnOption::right);
     
     // South
-    TrafficLight *left2 = inter.getLight(Road::south, Road::left);
-    TrafficLight *straight2 = inter.getLight(Road::south, Road::straight);
-    TrafficLight *right2 = inter.getLight(Road::south, Road::right);
+    TrafficLight *left2 = inter.getLight(Road::south, TurnOption::left);
+    TrafficLight *straight2 = inter.getLight(Road::south, TurnOption::straight);
+    TrafficLight *right2 = inter.getLight(Road::south, TurnOption::right);
 
     //CHECK(inter.validate(std::cout) == true);
 
@@ -592,9 +592,9 @@ TEST_CASE("TC_13-2_INT_tick_longerDuration"){
     inter.addRoad(Road::south, {1, 2, 3});
 
     // West
-    TrafficLight *left1 = inter.getLight(Road::west, Road::left);
-    TrafficLight *straight1 = inter.getLight(Road::west, Road::straight);
-    TrafficLight *right1 = inter.getLight(Road::west, Road::right);
+    TrafficLight *left1 = inter.getLight(Road::west, TurnOption::left);
+    TrafficLight *straight1 = inter.getLight(Road::west, TurnOption::straight);
+    TrafficLight *right1 = inter.getLight(Road::west, TurnOption::right);
     
     int onDuration = 10;
     int yellowDuration = 4;
@@ -664,12 +664,12 @@ TEST_CASE("TC_14-1_INT_schedule_LightConfig"){
     inter.addRoad(Road::south, {1, 2, 3});
 
     // North (Road 1)
-    TrafficLight *left1 = inter.getLight(Road::north, Road::left);
-    TrafficLight *straight1 = inter.getLight(Road::north, Road::straight);
-    TrafficLight *right1 = inter.getLight(Road::north, Road::right);
+    TrafficLight *left1 = inter.getLight(Road::north, TurnOption::left);
+    TrafficLight *straight1 = inter.getLight(Road::north, TurnOption::straight);
+    TrafficLight *right1 = inter.getLight(Road::north, TurnOption::right);
     
     // South (Road 2)
-    TrafficLight *left2 = inter.getLight(Road::south, Road::left);
+    TrafficLight *left2 = inter.getLight(Road::south, TurnOption::left);
 
     // Set the yellowDuration to be different for road1
     left1->setDuration(TrafficLight::yellow, yellowDuration);
@@ -714,10 +714,10 @@ TEST_CASE("TC_14-2_INT_schedule_doubleGreenLeft"){
     inter.addRoad(Road::south, {1, 2, 3});
 
     // East (Road 1)
-    TrafficLight *left1 = inter.getLight(Road::east, Road::left);
+    TrafficLight *left1 = inter.getLight(Road::east, TurnOption::left);
     
     // West (Road 2)
-    TrafficLight *left2 = inter.getLight(Road::west, Road::left);
+    TrafficLight *left2 = inter.getLight(Road::west, TurnOption::left);
 
     // Set the yellowDuration to be different for road1
     left1->setDuration(TrafficLight::yellow, yellowDuration);
@@ -763,10 +763,10 @@ TEST_CASE("TC_14-3_INT_schedule_nextLightConfig"){
     inter.addRoad(Road::south, {1, 2, 3});
 
     // East (Road 1)
-    TrafficLight *left1 = inter.getLight(Road::east, Road::left);
+    TrafficLight *left1 = inter.getLight(Road::east, TurnOption::left);
     
     // South (Road 2)
-    TrafficLight *left2 = inter.getLight(Road::south, Road::left);
+    TrafficLight *left2 = inter.getLight(Road::south, TurnOption::left);
 
     inter.schedule(config);
     inter.schedule(config2);
@@ -822,10 +822,10 @@ TEST_CASE("TC_14-3_INT_schedule_nextLightConfig_loop"){
     inter.addRoad(Road::south, {1, 2, 3});
 
     // East (Road 1)
-    TrafficLight *left1 = inter.getLight(Road::east, Road::left);
+    TrafficLight *left1 = inter.getLight(Road::east, TurnOption::left);
     
     // South (Road 2)
-    TrafficLight *left2 = inter.getLight(Road::south, Road::left);
+    TrafficLight *left2 = inter.getLight(Road::south, TurnOption::left);
 
     inter.schedule(config);
     inter.schedule(config2);

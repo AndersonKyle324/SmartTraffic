@@ -37,7 +37,7 @@ protected:
     unsigned long configScheduleIdx;                            ///< The index in configSchedule indicating the LightConfig the Intersecion is currently on.
     int numUnfinishedLights;                                    ///< The number of lights for the current config that have not yet turned red     
     unsigned long ticksSinceStart;                              ///< Total number of times tick() has been called on this Intersection
-
+    
     /**
      * @brief Checks to see if this intended new turn for a new road is compatible with the current state of the
      *          intersection. This is based on whether the exit road already exists and that is has enough
@@ -189,7 +189,7 @@ public:
      *
      * @return Success if road is added, else returns an IntersectionError value representing the specific error. 
      */
-    int addRoad(Road::RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr, int onDuration=DEFAULT_ON_DURATION);
+    int addRoad(Road::RoadDirection dir, std::array<int, TurnOption::numTurnOptions> numLanesArr, int onDuration=DEFAULT_ON_DURATION);
 
     /**
      * @brief Sets the on duration and yellow duration for all lights in the intersection
@@ -213,7 +213,7 @@ public:
     *
     * @return pointer to the desired TrafficLight
     */
-    TrafficLight* getLight(Road::RoadDirection dir, Road::TurnOption turn);
+    TrafficLight* getLight(Road::RoadDirection dir, TurnOption::Type turn);
 
     /**
      * @brief Gets a std::vector of all non-NULL TrafficLights in this intersection.

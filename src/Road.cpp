@@ -2,32 +2,25 @@
 
 #include "Road.h"
 
-Road::Road(RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr, int onDuration){
+Road::Road(RoadDirection dir, std::array<int, TurnOption::numTurnOptions> numLanesArr, int onDuration){
     isValidRoadDirection(dir);
     direction = dir;
 
-    for(int i=0; i<numTurnOptions; i++){
-        lanesPerTurnOption[i] = 0;
-        lights[i] = NULL;
-    }
-
-    if(numLanesArr[left] > 0){
-        lanesPerTurnOption[left] = numLanesArr[left];
-        lights[left] = new TrafficLightLeft(onDuration, -1);
-    }
-    if(numLanesArr[straight] > 0){
-        lanesPerTurnOption[straight] = numLanesArr[straight];
-        lights[straight] = new TrafficLight(TrafficLight::green, onDuration, -1);
-    }
-    if(numLanesArr[right] > 0){
-        lanesPerTurnOption[right] = numLanesArr[right];
-        lights[right] = new TrafficLight(TrafficLight::greenRight, onDuration, -1);
+    /// Initializes all turnOptions pointers
+    for(int opt=0; opt < TurnOption::numTurnOptions; opt++){
+        if(numLanesArr[opt] > 0){
+            turnOptions[opt] = new TurnOption((TurnOption::Type)opt, numLanesArr[opt], DEFAULT_MAX_LANE_VEHICLES, DEFAULT_TIME_TO_CROSS, onDuration);
+        }
+        else{
+            /// Default constructor
+            turnOptions[opt] = new TurnOption();
+        }
     }
 }
 
 Road::~Road(){
-    for(TrafficLight* light : lights){
-        delete light;
+    for(TurnOption* opt : turnOptions){
+        delete opt;
     }
 }
 
@@ -69,7 +62,7 @@ Road::RoadDirection Road::roadOppositeOf(RoadDirection dir){
     return tempRd;
 }
 
-bool Road::startLight(Road::TurnOption turnOpt, int onDuration){
+bool Road::startLight(TurnOption::Type turnOpt, int onDuration){
     if(getLight(turnOpt) != NULL){
         getLight(turnOpt)->setOnDuration(onDuration);
         getLight(turnOpt)->start();
@@ -84,7 +77,7 @@ int Road::setGreen(int onDuration){
 
     numLightsSet += setGreenRight(onDuration);
 
-    if(startLight(straight, onDuration)){
+    if(startLight(TurnOption::straight, onDuration)){
         numLightsSet++;
     }
 
@@ -94,7 +87,7 @@ int Road::setGreen(int onDuration){
 int Road::setGreenLeft(int onDuration){
     int numLightsSet = 0;
 
-    if(startLight(left, onDuration)){
+    if(startLight(TurnOption::left, onDuration)){
         numLightsSet++;
     }
 
@@ -104,7 +97,7 @@ int Road::setGreenLeft(int onDuration){
 int Road::setGreenRight(int onDuration){
     int numLightsSet = 0;
 
-    if(startLight(right, onDuration)){
+    if(startLight(TurnOption::right, onDuration)){
         numLightsSet++;
     }
 
@@ -119,7 +112,13 @@ int Road::setAllLightDurations(int onDur, int redDur, int yellowDur){
         return 0;
     }
     
-    for(TrafficLight* tl : lights){
+    for(TurnOption* opt : turnOptions){
+        if(opt == NULL){
+            throw std::logic_error("Road constructor did not initialize all TurnOption pointers\n");
+        }
+
+        TrafficLight* tl = opt->getLight();
+
         if(tl != NULL){
             tl->setDuration(tl->getOnColor(), onDur);
             tl->setDuration(TrafficLight::red, redDur);
@@ -134,24 +133,32 @@ int Road::setAllLightDurations(int onDur, int redDur, int yellowDur){
     return numLightsSet;
 }
 
-int Road::getNumLanes(TurnOption opt){
-    isValidTurnOption(opt);
+int Road::getNumLanes(TurnOption::Type opt){
+    TurnOption::isValidTurnOption(opt);
 
-    return lanesPerTurnOption[opt];
+    if(turnOptions[opt] == NULL){
+        throw std::logic_error("Road constructor did not initialize all TurnOption pointers\n");
+    }
+
+    return turnOptions[opt]->getNumLanes();
 }
 
-TrafficLight* Road::getLight(TurnOption opt){
-    isValidTurnOption(opt);
+TrafficLight* Road::getLight(TurnOption::Type opt){
+    TurnOption::isValidTurnOption(opt);
 
-    return lights[opt];
+    if(turnOptions[opt] == NULL){
+        throw std::logic_error("Road constructor did not initialize all TurnOption pointers\n");
+    }
+
+    return turnOptions[opt]->getLight();
 }
 
 std::vector<TrafficLight*> Road::getLights(){
     std::vector<TrafficLight*> lights;
     TrafficLight *tl;
 
-    for(int turnOpt=0; turnOpt < numTurnOptions; turnOpt++){
-        tl = getLight((Road::TurnOption)turnOpt);
+    for(int turnOpt=0; turnOpt < TurnOption::numTurnOptions; turnOpt++){
+        tl = getLight((TurnOption::Type)turnOpt);
 
         if(tl != NULL){
             lights.push_back(tl);

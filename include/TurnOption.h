@@ -1,0 +1,77 @@
+#ifndef TURN_OPTION_H
+#define TURN_OPTION_H
+
+#include "TrafficLight.h"
+
+#define DEFAULT_MAX_LANE_VEHICLES (5)
+#define DEFAULT_NUM_LANES (1)
+#define DEFAULT_TIME_TO_CROSS (2)   
+
+/**
+ * @class TurnOption
+ * @brief Represents a set of lanes that is directed by a single TrafficLight.
+ * 
+ * Also contains data related to vehicles in these lanes and their progress through the Intersection.
+ * e.g. The left hand TurnOption has 3 lanes that are all directed by the same light.
+ * 
+ */
+class TurnOption{
+public:
+    /**
+     * @brief The available types of TurnOption for each Road. Defines where these lanes are located for this Road.
+     */
+    enum Type {left, straight, right, numTurnOptions};
+
+    /**
+     * @brief Checks "opt" is within the allowable range of TurnOption::Type values
+     * 
+     * @param opt   The TurnOption::Type to be checked
+     * @return true if "opt" is between 0 and (TurnOption::numTurnOptions - 1)
+     */
+    static bool isValidTurnOption(Type& opt){
+        if(opt >= numTurnOptions || opt < 0){
+            throw std::out_of_range("TurnOption out of range");
+            return false;
+        }
+
+        return true;
+    }
+
+protected:
+    Type type;                                      ///< The relative location of these lanes for this Road.
+    TrafficLight* light;                            ///< Pointer to the TrafficLight that directs these lanes.
+    unsigned int numLanes;                          ///< The number of lanes
+    unsigned int maxVehiclesPerLane;                ///< The max number of vehicles allowed per lane
+    unsigned int timeToCross;                       ///< The number of ticks it takes for a vehicle to cross through the intersection
+
+    unsigned int queuedVehicles;                    ///< The number of vehicles currently waiting
+    unsigned int currentVehicleProgress;            ///< The number of ticks remaining for the vehicle(s) currently in the intersection to cross.
+    unsigned int numVehiclesCurrentlyCrossing;      ///< The number of vehicles currently crossing the intersection.
+
+public:
+    /**
+     * @brief Default constructor for TurnOption. Sets all values to 0, type is set to an invalid value.
+     */
+    TurnOption():   type(numTurnOptions),
+                    light(NULL),
+                    numLanes(0), 
+                    maxVehiclesPerLane(0),
+                    timeToCross(0),
+                    queuedVehicles(0), 
+                    currentVehicleProgress(0), 
+                    numVehiclesCurrentlyCrossing(0)
+                    {}
+    
+    TurnOption(Type aType, unsigned int lanes, unsigned int maxNumVehiclesPerLane, unsigned int crossTime, int lightDuration, int lightRedDuration=-1);   
+    ~TurnOption(){ delete light; }
+
+    unsigned int getNumLanes(){ return numLanes; }
+    TrafficLight* getLight(){ return light; }
+    unsigned int getMaxNumVehicles(){ return maxVehiclesPerLane * numLanes; }
+    unsigned int getQueuedVehicles(){ return queuedVehicles; }
+    unsigned int getCurrentVehicleProgress(){ return currentVehicleProgress; }
+    unsigned int getNumVehiclesCurrentlyCrossing(){ return numVehiclesCurrentlyCrossing; }
+
+};
+
+#endif

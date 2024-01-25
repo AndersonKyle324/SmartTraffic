@@ -53,8 +53,8 @@ int Intersection::tick(){
             continue;
         }
 
-        for(int turnOpt=0; turnOpt < Road::numTurnOptions; turnOpt++){
-            roadLight = rd->getLight((Road::TurnOption)turnOpt);
+        for(int turnOpt=0; turnOpt < TurnOption::numTurnOptions; turnOpt++){
+            roadLight = rd->getLight((TurnOption::Type)turnOpt);
             
             /// Skip light if its NULL
             if(roadLight == NULL){
@@ -64,6 +64,30 @@ int Intersection::tick(){
             /// If light is already red, it doesnt need to be ticked
             if(roadLight->getColor() != TrafficLight::red){
                 roadLight->tick();
+
+                /*rd->tickTurnOpt(roadLight->onColor())
+                    unsigned int numVehiclesCurrentlyCrossing = 0;   /// For this light only
+
+                    turnOptLanes = rd->getTurnOptLanes(roadLight->getTurnOpt())
+
+                    if(turnOptlanes->currentVehicleProgress > 0){
+                        turnOptLanes->currentVehicleProgress--;
+                    }
+
+                    /// Assumes a car will not enter the intersection if the light is yellow.
+                    if(tunrOptLanes->queuedVehicles > 0 && 
+                        light->isGreen() && 
+                        turnOptlanes->currentVehicleProgress == 0 && 
+                        ! exitRoad(rd->direction, turnOpt)->queueIsFull(turnOpt))
+                    {
+                        turnOptLanes->numVehiclesCurrentlyCrossing = (turnOptLanes->queuedVehicles > turnOptLanes->numLanes) ? turnOptLanes->numLanes : turnOptLanes->queuedVehicles;
+                        turnOpLanes->queuedVehicles -= turnOptLanes->numVehiclesCurrentlyCrossing;
+                        roadLight->numVehiclesDirected += turnOptLanes->numVehiclesCurrentlyCrossing;
+
+                        turnOptLanes->currentVehicleProgress = turnOptLanes->timeToCross;
+                    }
+
+                */
 
                 /// If light transitions to red, decrement numUnfinishedLights in Intersection
                 if(roadLight->getColor() == TrafficLight::red){
@@ -205,7 +229,7 @@ bool Intersection::newTurnIsPossible(Road::RoadDirection endRoadDir, int numNewL
         *roadIsExpected = true;
     }
     else{
-        turnIsPossible = (numNewLanes <= roads[endRoadDir]->getNumLanes(Road::straight));
+        turnIsPossible = (numNewLanes <= roads[endRoadDir]->getNumLanes(TurnOption::straight));
         *roadIsExpected = false;
     }
 
@@ -231,14 +255,14 @@ bool Intersection::newRoadIsPossible(Road::RoadDirection dir, int numLeftLanes, 
     return roadIsPossible;
 }
 
-int Intersection::addRoad(Road::RoadDirection dir, std::array<int, Road::numTurnOptions> numLanesArr, int onDuration){
+int Intersection::addRoad(Road::RoadDirection dir, std::array<int, TurnOption::numTurnOptions> numLanesArr, int onDuration){
     Road::isValidRoadDirection(dir);
 
     if(roads[dir] != NULL){
         return alreadyExists;
     }
     
-    if( ! newRoadIsPossible(dir, numLanesArr[Road::left], numLanesArr[Road::right])){
+    if( ! newRoadIsPossible(dir, numLanesArr[TurnOption::left], numLanesArr[TurnOption::right])){
         return turnNotPossible;
     }
 
@@ -273,7 +297,7 @@ bool Intersection::roadIsExpected(Road::RoadDirection dir){
     return expectedRoads[dir];
 }
 
-TrafficLight* Intersection::getLight(Road::RoadDirection dir, Road::TurnOption turn){
+TrafficLight* Intersection::getLight(Road::RoadDirection dir, TurnOption::Type turn){
     if(getRoad(dir) != NULL){
         return getRoad(dir)->getLight(turn);
     }
@@ -346,15 +370,15 @@ void Intersection::printHelper(Road::RoadDirection dir, std::string& outStr){
         return;
     }
 
-    tempLight = getLight(dir, Road::left);
+    tempLight = getLight(dir, TurnOption::left);
     if(tempLight != NULL){
         outStr.replace(slotLeft, tempLight->toString().size(), tempLight->toString());
     }
-    tempLight = getLight(dir, Road::straight);
+    tempLight = getLight(dir, TurnOption::straight);
     if(tempLight != NULL){
         outStr.replace(slotStr, tempLight->toString().size(), tempLight->toString());
     }
-    tempLight = getLight(dir, Road::right);
+    tempLight = getLight(dir, TurnOption::right);
     if(tempLight != NULL){
         outStr.replace(slotRight, tempLight->toString().size(), tempLight->toString());
     }
