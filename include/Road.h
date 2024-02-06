@@ -64,6 +64,15 @@ public:
     ~Road();
 
     /**
+     * @brief Gets the finishing road direction when starting in "startDir" and taking a "turnOpt" turn.
+     * 
+     * @param startDir  The starting direction
+     * @param turnOpt   The turn being made.
+     * @return RoadDirection the direction of the exiting road
+     */
+    static RoadDirection exitRoadDirection(RoadDirection startDir, TurnOption::Type turnOpt);
+
+    /**
      * @brief Gets the road direction to the right of "dir"
      * 
      * @param dir The starting direction
@@ -129,6 +138,7 @@ public:
 
     RoadDirection getDirection(){ return direction; };
     int getNumLanes(TurnOption::Type opt);
+    TurnOption* getTurnOption(TurnOption::Type opt);
     TrafficLight* getLight(TurnOption::Type opt);
 
     /**

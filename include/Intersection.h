@@ -181,6 +181,15 @@ public:
     bool roadExists(Road::RoadDirection dir);
 
     /**
+     * @brief Get the Exit Road object
+     * 
+     * @param startDir  the starting road direction
+     * @param turnOpt   The turn being made
+     * @return Road* pointer to the Road being exited onto
+     */
+    Road* getExitRoad(Road::RoadDirection startDir, TurnOption::Type turnOpt);
+
+    /**
      * @brief Creates new Road while checking to make sure it conforms with other Roads already present.
      * 
      * @param dir           The direction the road is facing when cars are at a stop

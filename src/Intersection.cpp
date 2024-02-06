@@ -46,6 +46,7 @@ bool Intersection::validate(){
 
 int Intersection::tick(){
     TrafficLight *roadLight;
+    TurnOption* exitRoadStraight;
 
     for(Road *rd : roads){
         /// Skip Road if its NULL
@@ -53,8 +54,9 @@ int Intersection::tick(){
             continue;
         }
 
-        for(int turnOpt=0; turnOpt < TurnOption::numTurnOptions; turnOpt++){
-            roadLight = rd->getLight((TurnOption::Type)turnOpt);
+        for(int opt=0; opt < TurnOption::numTurnOptions; opt++){
+            TurnOption* turnOpt;
+            roadLight = rd->getLight((TurnOption::Type)opt);
             
             /// Skip light if its NULL
             if(roadLight == NULL){
@@ -65,29 +67,23 @@ int Intersection::tick(){
             if(roadLight->getColor() != TrafficLight::red){
                 roadLight->tick();
 
-                /*rd->tickTurnOpt(roadLight->onColor())
-                    unsigned int numVehiclesCurrentlyCrossing = 0;   /// For this light only
+                turnOpt = rd->getTurnOption((TurnOption::Type)opt);
 
-                    turnOptLanes = rd->getTurnOptLanes(roadLight->getTurnOpt())
+                if(turnOpt->getCurrentVehicleProgress() > 0){
+                    turnOpt->progressVehicles();
+                }
 
-                    if(turnOptlanes->currentVehicleProgress > 0){
-                        turnOptLanes->currentVehicleProgress--;
-                    }
+                exitRoadStraight = getExitRoad(rd->getDirection(), (TurnOption::Type)opt)->getTurnOption(TurnOption::straight);
 
-                    /// Assumes a car will not enter the intersection if the light is yellow.
-                    if(tunrOptLanes->queuedVehicles > 0 && 
-                        light->isGreen() && 
-                        turnOptlanes->currentVehicleProgress == 0 && 
-                        ! exitRoad(rd->direction, turnOpt)->queueIsFull(turnOpt))
-                    {
-                        turnOptLanes->numVehiclesCurrentlyCrossing = (turnOptLanes->queuedVehicles > turnOptLanes->numLanes) ? turnOptLanes->numLanes : turnOptLanes->queuedVehicles;
-                        turnOpLanes->queuedVehicles -= turnOptLanes->numVehiclesCurrentlyCrossing;
-                        roadLight->numVehiclesDirected += turnOptLanes->numVehiclesCurrentlyCrossing;
-
-                        turnOptLanes->currentVehicleProgress = turnOptLanes->timeToCross;
-                    }
-
-                */
+                /// Assumes a car will not enter the intersection if the light is yellow.
+                if( ! turnOpt->queueIsFull() && 
+                    roadLight->isGreen() && 
+                    ! turnOpt->vehiclesAreCrossing() && 
+                    /// *********** WARNING this only checks if the exitRoad's straight TurnOption queue is full. Should I assume a vehicle turning left will end in the left turnOption, a car turning straight will end in the straight turnOption etc??? Should I check if the whole road is full???
+                    ! exitRoadStraight->queueIsFull())
+                {
+                    turnOpt->vehiclesEnterIntersection();
+                }
 
                 /// If light transitions to red, decrement numUnfinishedLights in Intersection
                 if(roadLight->getColor() == TrafficLight::red){
@@ -213,6 +209,12 @@ bool Intersection::roadExists(Road::RoadDirection dir){
     Road::isValidRoadDirection(dir);
 
     return roads[dir] != NULL;
+}
+    
+Road* Intersection::getExitRoad(Road::RoadDirection startDir, TurnOption::Type turnOpt){
+    Road::RoadDirection exitRoadDir = Road::exitRoadDirection(startDir, turnOpt);
+
+    return roads[exitRoadDir];
 }
 
 bool Intersection::newTurnIsPossible(Road::RoadDirection endRoadDir, int numNewLanes, bool* roadIsExpected){

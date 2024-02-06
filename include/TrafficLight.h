@@ -121,6 +121,14 @@ public:
     AvailableColors getOnColor(){ return onColor; };
 
     /**
+     * @brief Adds "numVehicles" to the total number of vehicles directed by this light
+     * 
+     * @param numVehicles the amount to be added
+     * @return int the new total directed
+     */
+    int addVehiclesDirected(int numVehicles);
+
+    /**
      * @brief Sets the duration remaining to the duration for the current color.
      */
     void resetDurationRemaining();

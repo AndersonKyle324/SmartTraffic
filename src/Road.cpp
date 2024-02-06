@@ -24,6 +24,34 @@ Road::~Road(){
     }
 }
 
+Road::RoadDirection Road::exitRoadDirection(RoadDirection startDir, TurnOption::Type turnOpt){
+    RoadDirection exitDir;
+
+    isValidRoadDirection(startDir);
+    TurnOption::isValidTurnOption(turnOpt);
+    
+    switch(turnOpt){
+        case(TurnOption::left):
+            exitDir = roadLeftOf(startDir);
+            break;
+
+        case(TurnOption::straight):
+            exitDir = roadOppositeOf(startDir);
+            break;
+
+        case(TurnOption::right):
+            exitDir = roadRightOf(startDir);
+            break;
+
+        default:
+            throw std::domain_error("Road::exitRoadDirection() called with unhandled TurnOption::Type\n");
+            exitDir = numRoadDirections;
+            break;
+    }
+
+    return exitDir;
+}
+
 Road::RoadDirection Road::roadRightOf(RoadDirection dir){
     int rightRoadDir = dir + 1;
 
@@ -141,6 +169,17 @@ int Road::getNumLanes(TurnOption::Type opt){
     }
 
     return turnOptions[opt]->getNumLanes();
+}
+
+TurnOption* Road::getTurnOption(TurnOption::Type opt){
+    TurnOption::isValidTurnOption(opt);
+
+    if(turnOptions[opt] == NULL){
+        throw std::logic_error("Road constructor did not initialize all TurnOption pointers\n");
+    }
+
+    return turnOptions[opt];
+
 }
 
 TrafficLight* Road::getLight(TurnOption::Type opt){

@@ -30,6 +30,12 @@ int TrafficLight::tick(){
     return durationRemaining;
 }
 
+int TrafficLight::addVehiclesDirected(int numVehicles){
+    numVehiclesDirected += numVehicles;
+
+    return numVehiclesDirected;
+}
+
 void TrafficLight::resetDurationRemaining(){
     setDurationRemainingColor(color);
 }

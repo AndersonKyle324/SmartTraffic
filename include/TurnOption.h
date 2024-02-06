@@ -64,10 +64,47 @@ public:
     
     TurnOption(Type aType, unsigned int lanes, unsigned int maxNumVehiclesPerLane, unsigned int crossTime, int lightDuration, int lightRedDuration=-1);   
     ~TurnOption(){ delete light; }
+    
+    /**
+     * @brief Determines if this TurnOption object is valid
+     * 
+     * Calls isValidTurnOption(Type& opt) on itself.
+     * 
+     * @return true  this TurnOption type is within the allowable range for TurnOption::Type
+     * @return false 
+     */
+    bool isValidTurnOption();
 
-    unsigned int getNumLanes(){ return numLanes; }
+    /**
+     * @brief Determines if the vehicle queue is full
+     * 
+     * @return true     the number of vehicles in the queue is >= the max queue size
+     */
+    bool queueIsFull();
+
+    /**
+     * @brief Operations necessary to move vehicles currently in the intersection one tick
+     *          closer to their destination. (Decrements currentVehicleProgress)
+     */
+    void progressVehicles();
+
+    /**
+     * @brief Determines if any vehicles from this TurnOption are currently crossing the intersection
+     * 
+     * @return true     there are vehicles presently crossing the intersection
+     */
+    bool vehiclesAreCrossing();
+
+    /**
+     * @brief The operations that take place when the next set of vehicles begin traveling throught the intersection.
+     */
+    void vehiclesEnterIntersection();
+
+    Type getType(){ return type; }
     TrafficLight* getLight(){ return light; }
+    unsigned int getNumLanes(){ return numLanes; }
     unsigned int getMaxNumVehicles(){ return maxVehiclesPerLane * numLanes; }
+    unsigned int getTimeToCross(){ return timeToCross; }
     unsigned int getQueuedVehicles(){ return queuedVehicles; }
     unsigned int getCurrentVehicleProgress(){ return currentVehicleProgress; }
     unsigned int getNumVehiclesCurrentlyCrossing(){ return numVehiclesCurrentlyCrossing; }
