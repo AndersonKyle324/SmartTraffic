@@ -30,12 +30,16 @@ TurnOption::TurnOption(TurnOption::Type aType, unsigned int lanes, unsigned int 
 
 }
 
-bool TurnOption::isValidTurnOption(){
-    return isValidTurnOption(type);
+bool TurnOption::isValid(){
+    return ! (getType() == numTurnOptions || getLight() == NULL || getNumLanes() == 0);
 }
 
 bool TurnOption::queueIsFull(){
     return getQueuedVehicles() >= getMaxNumVehicles();
+}
+
+bool TurnOption::queueIsEmpty(){
+    return getQueuedVehicles() == 0;
 }
 
 void TurnOption::progressVehicles(){
@@ -43,10 +47,10 @@ void TurnOption::progressVehicles(){
 }
 
 bool TurnOption::vehiclesAreCrossing(){
-    return getCurrentVehicleProgress() != 0;
+    return getCurrentVehicleProgress() > 0;
 }
 
-void TurnOption::vehiclesEnterIntersection(){
+void TurnOption::nextVehiclesBeginCrossing(){
     if(getQueuedVehicles() > getNumLanes()){
         numVehiclesCurrentlyCrossing = getNumLanes();
     }

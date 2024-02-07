@@ -37,7 +37,24 @@ protected:
     unsigned long configScheduleIdx;                            ///< The index in configSchedule indicating the LightConfig the Intersecion is currently on.
     int numUnfinishedLights;                                    ///< The number of lights for the current config that have not yet turned red     
     unsigned long ticksSinceStart;                              ///< Total number of times tick() has been called on this Intersection
+
+    /**
+     * @brief Checks to see if "light" should be ticked and updates the Intersections
+     *          unfinished lights count if the light transitions to red.
+     * 
+     * @param light the TrafficLight object to be checked
+     */
+    void handleLightTick(TrafficLight* light);
     
+    /**
+     * @brief Advances vehicles currenly crossing intersection and adds new vehicles to cross
+     *          if the right conditions are met.
+     * 
+     * @param rd        The desired Road
+     * @param turnOpt   The desired TurnOption in "rd"
+     */
+    void handleVehicles(Road* rd, TurnOption::Type opt);
+
     /**
      * @brief Checks to see if this intended new turn for a new road is compatible with the current state of the
      *          intersection. This is based on whether the exit road already exists and that is has enough

@@ -46,7 +46,6 @@ bool Intersection::validate(){
 
 int Intersection::tick(){
     TrafficLight *roadLight;
-    TurnOption* exitRoadStraight;
 
     for(Road *rd : roads){
         /// Skip Road if its NULL
@@ -56,50 +55,69 @@ int Intersection::tick(){
 
         for(int opt=0; opt < TurnOption::numTurnOptions; opt++){
             TurnOption* turnOpt;
-            roadLight = rd->getLight((TurnOption::Type)opt);
+
+            turnOpt = rd->getTurnOption((TurnOption::Type)opt);
             
-            /// Skip light if its NULL
-            if(roadLight == NULL){
+            /// Skip this TurnOption if is not valid
+            if( ! turnOpt->isValid()){
                 continue;
             }
+
+            roadLight = turnOpt->getLight();
             
-            /// If light is already red, it doesnt need to be ticked
-            if(roadLight->getColor() != TrafficLight::red){
-                roadLight->tick();
-
-                turnOpt = rd->getTurnOption((TurnOption::Type)opt);
-
-                if(turnOpt->getCurrentVehicleProgress() > 0){
-                    turnOpt->progressVehicles();
-                }
-
-                exitRoadStraight = getExitRoad(rd->getDirection(), (TurnOption::Type)opt)->getTurnOption(TurnOption::straight);
-
-                /// Assumes a car will not enter the intersection if the light is yellow.
-                if( ! turnOpt->queueIsFull() && 
-                    roadLight->isGreen() && 
-                    ! turnOpt->vehiclesAreCrossing() && 
-                    /// *********** WARNING this only checks if the exitRoad's straight TurnOption queue is full. Should I assume a vehicle turning left will end in the left turnOption, a car turning straight will end in the straight turnOption etc??? Should I check if the whole road is full???
-                    ! exitRoadStraight->queueIsFull())
-                {
-                    turnOpt->vehiclesEnterIntersection();
-                }
-
-                /// If light transitions to red, decrement numUnfinishedLights in Intersection
-                if(roadLight->getColor() == TrafficLight::red){
-                    if(numUnfinishedLights <= 0){
-                        throw std::out_of_range("Intersection reached numUnfinishedLights of 0 before finishing all lights in Intersection::tick()");
-                    }
-
-                    numUnfinishedLights--;
-                }
-            }
+            handleLightTick(roadLight);
+            handleVehicles(rd, (TurnOption::Type)opt);
         }
     }
 
     ticksSinceStart++;
 
     return numUnfinishedLights;
+}
+
+void Intersection::handleLightTick(TrafficLight* light){
+    
+    /// If light is already red, it doesnt need to be ticked
+    if(light->getColor() != TrafficLight::red){
+        light->tick();
+
+        /// If light transitions to red, decrement numUnfinishedLights in Intersection
+        if(light->getColor() == TrafficLight::red){
+            if(numUnfinishedLights <= 0){
+                throw std::out_of_range("Intersection reached numUnfinishedLights of 0 before finishing all lights in Intersection::tick()");
+            }
+
+            numUnfinishedLights--;
+        }
+    }
+}
+
+void Intersection::handleVehicles(Road* rd, TurnOption::Type opt){
+    TurnOption* turnOpt;
+    TurnOption* exitRoadStraight;
+
+    turnOpt = rd->getTurnOption((TurnOption::Type)opt);
+
+    /// Move along vehicles currently in intersection
+    if(turnOpt->vehiclesAreCrossing()){
+        turnOpt->progressVehicles();
+    }
+
+    exitRoadStraight = getExitRoad(rd->getDirection(), turnOpt->getType())->getTurnOption(TurnOption::straight);
+    if(exitRoadStraight == NULL){
+        throw std::logic_error("Exit Road in Intersection::handleVehicles() is NULL, Intersection is invalid\n");
+        return;
+    }
+
+    /// Assumes a car will not enter the intersection if the light is yellow.
+    if( ! turnOpt->queueIsEmpty() && 
+        turnOpt->getLight()->isGreen() && 
+        ! turnOpt->vehiclesAreCrossing() && 
+        /// *********** WARNING this only checks if the exitRoad's straight TurnOption queue is full. Should I assume a vehicle turning left will end in the left turnOption, a car turning straight will end in the straight turnOption etc??? Should I check if the whole road is full???
+        ! exitRoadStraight->queueIsFull())
+    {
+        turnOpt->nextVehiclesBeginCrossing();
+    }
 }
 
 bool Intersection::schedule(LightConfig::Option configOpt, Road::RoadDirection direction, int duration){

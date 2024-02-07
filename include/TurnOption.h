@@ -68,12 +68,10 @@ public:
     /**
      * @brief Determines if this TurnOption object is valid
      * 
-     * Calls isValidTurnOption(Type& opt) on itself.
-     * 
      * @return true  this TurnOption type is within the allowable range for TurnOption::Type
      * @return false 
      */
-    bool isValidTurnOption();
+    bool isValid();
 
     /**
      * @brief Determines if the vehicle queue is full
@@ -81,6 +79,13 @@ public:
      * @return true     the number of vehicles in the queue is >= the max queue size
      */
     bool queueIsFull();
+
+    /**
+     * @brief Determines if there are no vehicles in the queue
+     * 
+     * @return true     the number of vehicesl in the queue is 0
+     */
+    bool queueIsEmpty();
 
     /**
      * @brief Operations necessary to move vehicles currently in the intersection one tick
@@ -98,7 +103,7 @@ public:
     /**
      * @brief The operations that take place when the next set of vehicles begin traveling throught the intersection.
      */
-    void vehiclesEnterIntersection();
+    void nextVehiclesBeginCrossing();
 
     Type getType(){ return type; }
     TrafficLight* getLight(){ return light; }
