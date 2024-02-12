@@ -119,7 +119,8 @@ public:
     bool validate();
 
     /**
-     * @brief Call tick() for all TrafficLights in this Intersection.
+     * @brief Call tick() for all TrafficLights in this Intersection and advance
+     *  vehicles waiting at each light accordingly.
      *
      * @return the number of unfinished lights in the Intersection.
     */
@@ -218,6 +219,18 @@ public:
     int addRoad(Road::RoadDirection dir, std::array<int, TurnOption::numTurnOptions> numLanesArr, int onDuration=DEFAULT_ON_DURATION);
 
     /**
+     * @brief Add "numVehiclesToAdd" vehicles to the vehicle queue on road "dir" for TurnOption::Type "turn". The queue is limited to 
+     *  the size returned by turnOpt->getMaxNumVehicles().
+     * 
+     * @param dir           the desired Road
+     * @param turn          the desired TurnOption for Road at "dir"
+     * @param numVehicles   the max number of vehicles to add to the vehicle queue
+     * @return true all "numVehiclesToAdd" vehicles were added without exceeding the max queue size
+     * @return false "numVehiclesToAdd" <= 0 or adding "numVehiclesToAdd" exceeds the max queue size or this Road DNE.
+     */
+    bool addVehicles(Road::RoadDirection dir, TurnOption::Type turn, int numVehiclesToAdd);
+
+    /**
      * @brief Sets the on duration and yellow duration for all lights in the intersection
      * 
      * @param onDur     the value to be set to all lights on duration
@@ -258,7 +271,7 @@ public:
     unsigned long time(){ return ticksSinceStart; }
     
     /**
-    * @brief Prints the current state of all the lights in the intersection in an
+    * @brief Prints the current state of all the lights and vehicles queues in the intersection in an
     *            ascii art fashion to look like a birds eye view of an intersection.
     */
     void print();

@@ -120,6 +120,8 @@ public:
      */
     AvailableColors getOnColor(){ return onColor; };
 
+    unsigned long getNumVehiclesDirected(){ return numVehiclesDirected; }
+
     /**
      * @brief Adds "numVehicles" to the total number of vehicles directed by this light
      * 

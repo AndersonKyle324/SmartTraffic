@@ -63,3 +63,20 @@ void TurnOption::nextVehiclesBeginCrossing(){
 
     currentVehicleProgress = getTimeToCross();
 }
+
+bool TurnOption::addVehicles(int numVehiclesToAdd){
+    unsigned int newQueuedVehiclesTotal = queuedVehicles + numVehiclesToAdd;
+
+    if(numVehiclesToAdd <= 0){
+        return false;
+    }
+
+    if(newQueuedVehiclesTotal <= getMaxNumVehicles()){
+        queuedVehicles = newQueuedVehiclesTotal;
+        return true;
+    }
+    else{
+        queuedVehicles = getMaxNumVehicles();
+        return false;
+    }
+}

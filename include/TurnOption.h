@@ -105,6 +105,16 @@ public:
      */
     void nextVehiclesBeginCrossing();
 
+    /**
+     * @brief Add "numVehiclesToAdd" vehicles to the queue. The queue is limited to 
+     *  the size returned by getMaxNumVehicles().
+     * 
+     * @param numVehicles 
+     * @return true all "numVehiclesToAdd" vehicles were added without exceeding the max queue size
+     * @return false "numVehiclesToAdd" <= 0 or adding "numVehiclesToAdd" exceeds the max queue size
+     */
+    bool addVehicles(int numVehiclesToAdd);
+
     Type getType(){ return type; }
     TrafficLight* getLight(){ return light; }
     unsigned int getNumLanes(){ return numLanes; }

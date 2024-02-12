@@ -293,6 +293,17 @@ int Intersection::addRoad(Road::RoadDirection dir, std::array<int, TurnOption::n
     return success;
 }
 
+bool Intersection::addVehicles(Road::RoadDirection dir, TurnOption::Type turn, int numVehiclesToAdd){
+    Road* rd = getRoad(dir);
+
+    if(rd != NULL){
+        TurnOption* turnOpt = rd->getTurnOption(turn);
+        return turnOpt->addVehicles(numVehiclesToAdd);
+    }
+
+    return false;
+}
+
 int Intersection::setAllLightDurations(int onDur, int yellowDir){    
     int numRoadsSet = 0;
     int redDur = -1;
@@ -340,7 +351,11 @@ std::vector<TrafficLight*> Intersection::getLights(){
 
 void Intersection::printHelper(Road::RoadDirection dir, std::string& outStr){
     TrafficLight *tempLight;
-    int slotLeft, slotStr, slotRight;
+    Road* tempRoad;
+    TurnOption* tempTurnOpt;
+    std::string vehicleString;
+    int slotLeft, slotStr, slotRight, vehicleLeft, vehicleStr, vehicleRight;
+    Road::RoadDirection vehicleDir;
     std::string templateStr =    "           |                             |                             |           \n";
     std::string templateStrMid = "           |                                                           |           \n";
     
@@ -352,6 +367,11 @@ void Intersection::printHelper(Road::RoadDirection dir, std::string& outStr){
             slotLeft = SLOT_NORTH_LEFT;
             slotStr = SLOT_NORTH_STR;
             slotRight = SLOT_NORTH_RIGHT;
+
+            vehicleDir = Road::south;
+            vehicleLeft = SLOT_SOUTH_LEFT;
+            vehicleStr = SLOT_SOUTH_STR;
+            vehicleRight = SLOT_SOUTH_RIGHT;
             break;
 
         case (Road::south):
@@ -360,6 +380,11 @@ void Intersection::printHelper(Road::RoadDirection dir, std::string& outStr){
             slotLeft = SLOT_SOUTH_LEFT;
             slotStr = SLOT_SOUTH_STR;
             slotRight = SLOT_SOUTH_RIGHT;
+
+            vehicleDir = Road::north;
+            vehicleLeft = SLOT_NORTH_LEFT;
+            vehicleStr = SLOT_NORTH_STR;
+            vehicleRight = SLOT_NORTH_RIGHT;
             break;
 
         case (Road::east):
@@ -370,6 +395,11 @@ void Intersection::printHelper(Road::RoadDirection dir, std::string& outStr){
             slotLeft = SLOT_EAST;
             slotStr = SLOT_EAST + LEN_LINE;         /// Same position one line down
             slotRight = SLOT_EAST + (LEN_LINE * 2); /// Same position two lines down
+
+            vehicleDir = Road::east;
+            vehicleLeft = SLOT_WEST;
+            vehicleStr = SLOT_WEST + LEN_LINE;
+            vehicleRight = SLOT_WEST + (LEN_LINE * 2);
             break;
 
         case (Road::west):
@@ -380,6 +410,11 @@ void Intersection::printHelper(Road::RoadDirection dir, std::string& outStr){
             slotLeft = SLOT_WEST + (LEN_LINE * 2);  /// Bottom position
             slotStr = SLOT_WEST + LEN_LINE;         /// Middle position
             slotRight = SLOT_WEST;                  /// Top position
+
+            vehicleDir = Road::west;
+            vehicleLeft = SLOT_EAST + (LEN_LINE * 2);
+            vehicleStr = SLOT_EAST + LEN_LINE;
+            vehicleRight = SLOT_EAST;
             break;
 
         default:
@@ -390,6 +425,7 @@ void Intersection::printHelper(Road::RoadDirection dir, std::string& outStr){
         return;
     }
 
+    /// TrafficLights
     tempLight = getLight(dir, TurnOption::left);
     if(tempLight != NULL){
         outStr.replace(slotLeft, tempLight->toString().size(), tempLight->toString());
@@ -401,6 +437,28 @@ void Intersection::printHelper(Road::RoadDirection dir, std::string& outStr){
     tempLight = getLight(dir, TurnOption::right);
     if(tempLight != NULL){
         outStr.replace(slotRight, tempLight->toString().size(), tempLight->toString());
+    }
+
+    /// Vehicle Queues
+    tempRoad = getRoad(vehicleDir);
+    if(tempRoad != NULL){
+        tempTurnOpt = tempRoad->getTurnOption(TurnOption::left);
+        if(tempTurnOpt->isValid()){
+            vehicleString = std::to_string(tempTurnOpt->getQueuedVehicles());
+            outStr.replace(vehicleLeft, vehicleString.size(), vehicleString);
+        }
+
+        tempTurnOpt = tempRoad->getTurnOption(TurnOption::straight);
+        if(tempTurnOpt->isValid()){
+            vehicleString = std::to_string(tempTurnOpt->getQueuedVehicles());
+            outStr.replace(vehicleStr, vehicleString.size(), vehicleString);
+        }
+
+        tempTurnOpt = tempRoad->getTurnOption(TurnOption::right);
+        if(tempTurnOpt->isValid()){
+            vehicleString = std::to_string(tempTurnOpt->getQueuedVehicles());
+            outStr.replace(vehicleRight, vehicleString.size(), vehicleString);
+        }
     }
 }
 

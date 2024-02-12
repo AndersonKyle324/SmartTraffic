@@ -651,6 +651,57 @@ TEST_CASE("TC_13-2_INT_tick_longerDuration"){
     CHECK(right1->getDurationRemaining() == -1);
 }
 
+TEST_CASE("TC_13-3_INT_tick_addVehicles"){
+    int numUnfinishedLights;
+    TurnOption* turnOptNorth;
+    TurnOption* turnOptSouth;
+    Road* tempRd;
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {3, 4, 5});
+    inter.addRoad(Road::east, {0, 1, 0});
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
+
+    tempRd = inter.getRoad(Road::north);
+    turnOptNorth = tempRd->getTurnOption(TurnOption::left);
+    tempRd = inter.getRoad(Road::south);
+    turnOptSouth = tempRd->getTurnOption(TurnOption::left);
+
+    /// Add vehicles
+    inter.addVehicles(Road::north, TurnOption::left, 8);
+    inter.addVehicles(Road::south, TurnOption::left, 2);
+
+    inter.doubleGreenLeft(Road::north, 2);
+
+    numUnfinishedLights = inter.tick();
+    CHECK(numUnfinishedLights == 2);
+    CHECK(turnOptNorth->getCurrentVehicleProgress() == DEFAULT_TIME_TO_CROSS);
+    CHECK(turnOptNorth->getQueuedVehicles() == 5);
+    CHECK(turnOptSouth->getCurrentVehicleProgress() == DEFAULT_TIME_TO_CROSS);
+    CHECK(turnOptSouth->getQueuedVehicles() == 1);
+
+    numUnfinishedLights = inter.tick();
+    CHECK(numUnfinishedLights == 2);
+    CHECK(turnOptNorth->getCurrentVehicleProgress() == DEFAULT_TIME_TO_CROSS - 1);
+    CHECK(turnOptNorth->getQueuedVehicles() == 5);
+    CHECK(turnOptSouth->getCurrentVehicleProgress() == DEFAULT_TIME_TO_CROSS - 1);
+    CHECK(turnOptSouth->getQueuedVehicles() == 1);
+
+    // durationRemaining hits 0, should set to yellow
+    for(int i=0; i<DEFAULT_YELLOW_DURATION; i++){
+        numUnfinishedLights = inter.tick();
+    }
+
+    CHECK(turnOptNorth->getCurrentVehicleProgress() == 0);
+    CHECK(turnOptNorth->getQueuedVehicles() == 5);
+    CHECK(turnOptSouth->getCurrentVehicleProgress() == 0);
+    CHECK(turnOptSouth->getQueuedVehicles() == 1);
+
+    CHECK(inter.getLight(Road::north, TurnOption::left)->getNumVehiclesDirected() == 3);
+    CHECK(inter.getLight(Road::south, TurnOption::left)->getNumVehiclesDirected() == 1);
+}
+
 TEST_CASE("TC_14-1_INT_schedule_LightConfig"){
     int onDuration = 10;
     int yellowDuration = 4;
@@ -884,4 +935,40 @@ TEST_CASE("TC_14-3_INT_schedule_nextLightConfig_loop"){
     }
 
     CHECK(inter.getNumUnfinishedLights() == 0);
+}
+
+TEST_CASE("TC_15-1_INT_addVehicles"){
+    bool retVal;
+    TurnOption* turnOpt;
+
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {3, 4, 5});
+    inter.addRoad(Road::east, {0, 1, 0});
+    inter.addRoad(Road::west, {2, 3, 1});
+    inter.addRoad(Road::south, {1, 2, 3});
+
+    /// This lane should support 20 vehicles
+    turnOpt = inter.getRoad(Road::north)->getTurnOption(TurnOption::straight);
+
+    retVal = inter.addVehicles(Road::north, TurnOption::straight, 5);
+    CHECK(retVal == true);
+    CHECK(turnOpt->getQueuedVehicles() == 5);
+
+    retVal = inter.addVehicles(Road::north, TurnOption::straight, 15);
+    CHECK(retVal == true);
+    CHECK(turnOpt->getQueuedVehicles() == 20);
+
+    /// Max exceeeded
+    retVal = inter.addVehicles(Road::north, TurnOption::straight, 1);
+    CHECK(retVal == false);
+    CHECK(turnOpt->getQueuedVehicles() == 20);
+
+    /// Road DNE
+    retVal = inter.addVehicles(Road::east, TurnOption::right, 1);
+    CHECK(retVal == false);
+
+    /// numVehiclesToAdd <= 0
+    retVal = inter.addVehicles(Road::south, TurnOption::straight, -1);
+    CHECK(retVal == false);
 }
