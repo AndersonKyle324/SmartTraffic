@@ -473,7 +473,7 @@ void Intersection::print(){
     printHelper(Road::east, eastStr);
     printHelper(Road::south, southStr);
 
-    std::cout << "Time: " << time() << std::endl;
+    std::cout << "Time: " << time() / refreshRateHzGlobal << "s (" << time() << " ticks)" << std::endl;
     std::cout << northStr;
     std::cout << crosswalkStr;
     std::cout << westStr;

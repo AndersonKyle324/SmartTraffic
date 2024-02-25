@@ -6,8 +6,8 @@
 
 extern int refreshRateHzGlobal;
 
-#define DEFAULT_ON_DURATION (1 * refreshRateHzGlobal)
-#define DEFAULT_YELLOW_DURATION (1 * refreshRateHzGlobal)
+#define DEFAULT_ON_DURATION (1)
+#define DEFAULT_YELLOW_DURATION (1)
 
 /**
  * @class TrafficLight
@@ -41,7 +41,7 @@ public:
      */
     TrafficLight(): color(red), 
                     durationRemaining(-1), 
-                    colorDuration{0, 0, 0, yellowDuration, -1}, 
+                    colorDuration{0, 0, 0, yellowDuration * refreshRateHzGlobal, -1}, 
                     numVehiclesDirected(0)
                     {};
 
@@ -49,8 +49,8 @@ public:
      * @brief Construct a new Traffic Light object specifying color direction and durations
      * 
      * @param aOnColor   color direction of onColor
-     * @param onColorDur duration of the onColor
-     * @param redDur     duration of the red light
+     * @param onColorDur duration of the onColor in seconds
+     * @param redDur     duration of the red light in seconds
      * @param lanes      number of lanes directed by this light
      */
     TrafficLight(AvailableColors aOnColor, int onColorDur, int redDur);

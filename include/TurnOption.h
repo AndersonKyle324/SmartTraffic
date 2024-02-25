@@ -5,7 +5,7 @@
 
 #define DEFAULT_MAX_LANE_VEHICLES (5)
 #define DEFAULT_NUM_LANES (1)
-#define DEFAULT_TIME_TO_CROSS (2 * refreshRateHzGlobal)   
+#define DEFAULT_TIME_TO_CROSS (2)   
 
 /**
  * @class TurnOption

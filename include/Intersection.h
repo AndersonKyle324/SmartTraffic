@@ -271,7 +271,7 @@ public:
     int getNumUnfinishedLights(){ return numUnfinishedLights; }
 
     /**
-     * @brief Gets ticksSinceStart i.e. the current time
+     * @brief Gets ticksSinceStart i.e. the current time in ticks
      * 
      * @return ticksSinceStart unsigned long
     */

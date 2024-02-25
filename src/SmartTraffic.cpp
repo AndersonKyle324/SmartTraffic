@@ -29,8 +29,9 @@ void waitSleep(){
     usleep(TWENTIETH_SEC);
 }
 
-bool commenceTraffic(Intersection& inter, int refreshRateHz){
-    long long secondsElapsed = 0;
+bool commenceTraffic(Intersection& inter, int refreshRateHz, int runTime=-1){
+    long long totalSecondsElapsed = 0;
+    int secondsSinceLightConfigStart = 0;
 
     refreshRateHzGlobal = refreshRateHz;
 
@@ -40,8 +41,10 @@ bool commenceTraffic(Intersection& inter, int refreshRateHz){
 
     inter.start();
 
-    while(secondsElapsed < 20){
+    while(runTime == -1 || totalSecondsElapsed < runTime){
         auto startTime = currentTime();
+
+        inter.print();
 
         ///tick() "refreshRateHz" times
         for(int i=0; i < refreshRateHz; i++){
@@ -57,8 +60,13 @@ bool commenceTraffic(Intersection& inter, int refreshRateHz){
             waitSleep();
         }
 
-        inter.print();
-        secondsElapsed++;
+        totalSecondsElapsed++;
+        secondsSinceLightConfigStart++;
+
+        if(secondsSinceLightConfigStart > inter.currentLightConfig()->getDuration()){
+            inter.nextLightConfig();
+            secondsSinceLightConfigStart = 0;
+        }
     }
 
     return true;
@@ -99,7 +107,7 @@ int main(int argc, char *argv[]){
     }
     */
 
-    commenceTraffic(inter, 50);
+    commenceTraffic(inter, 50, 20);
 
     return 0;
 }
