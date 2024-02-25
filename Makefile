@@ -1,6 +1,6 @@
 CC = g++
 INCLUDE_DIR = include
-CFLAGS = -Wall -Werror -I$(INCLUDE_DIR) 
+CFLAGS = -Wall -Werror -I$(INCLUDE_DIR) -std=c++2a -fconcepts
 SRC_DIR = src
 BIN_DIR = bin
 

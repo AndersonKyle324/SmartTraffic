@@ -154,6 +154,13 @@ public:
     bool nextLightConfig();
 
     /**
+     * @brief Gets pointer to the LightConfig the intersection is currently on
+     * 
+     * @return LightConfig* the current LightConfig
+     */
+    LightConfig* currentLightConfig(){ return configSchedule.at(configScheduleIdx); }
+
+    /**
      * @brief Sets two opposite roads green. Allowing both straight and right Road::turnOptions for both Roads.
      *
      * @param dir           The direction to be set green, the direction opposite of this will also be set green.

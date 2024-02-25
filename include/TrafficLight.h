@@ -4,8 +4,10 @@
 #include <array>
 #include <iostream>
 
-#define DEFAULT_ON_DURATION (1)
-#define DEFAULT_YELLOW_DURATION (1)
+extern int refreshRateHzGlobal;
+
+#define DEFAULT_ON_DURATION (1 * refreshRateHzGlobal)
+#define DEFAULT_YELLOW_DURATION (1 * refreshRateHzGlobal)
 
 /**
  * @class TrafficLight
@@ -27,8 +29,8 @@ public:
 protected:
     AvailableColors onColor; ///< The color direction of the traffic light.
     AvailableColors color; ///< The current color of the traffic light.
-    int durationRemaining; ///< The remaining duration for the current color.
-    std::array<int, numColors> colorDuration; ///< Array of durations for each color.
+    int durationRemaining; ///< The remaining duration for the current color in ticks.
+    std::array<int, numColors> colorDuration; ///< Array of durations for each color in ticks.
     
     /// Variables associated with the lanes directed by this light.
     unsigned long numVehiclesDirected;   ///< The total number of vehicles directed by this light that have crossed through the intersection.
@@ -138,9 +140,9 @@ public:
     /**
      * @brief Sets the duration remaining to newDuration.
      *
-     * @param newDuration The new duration value.
+     * @param newDuration The new duration value in seconds.
      */
-    void setDurationRemaining(int newDuration){ durationRemaining = newDuration; }
+    void setDurationRemaining(int newDuration){ durationRemaining = newDuration * refreshRateHzGlobal; }
 
     /**
      * @brief Sets the durationRemaining to the duration of a specific color.
@@ -153,14 +155,14 @@ public:
      * @brief Sets the duration for a specific color.
      *
      * @param durColor The color for which to set the duration.
-     * @param duration The duration value. The number of ticks to stay on "durColor" color.
+     * @param duration The duration value. The number of seconds to stay on "durColor" color.
      */
-    void setDuration(AvailableColors durColor, int duration){ colorDuration[durColor] = duration; }
+    void setDuration(AvailableColors durColor, int duration){ colorDuration[durColor] = duration * refreshRateHzGlobal; }
 
     /**
      * @brief Sets the duration for a specific color.
      *
-     * @param duration The duration value. The number of ticks to stay on onColor color.
+     * @param duration The duration value. The number of seconds to stay on onColor color.
      */
     void setOnDuration(int duration){ setDuration(onColor, duration); }
 
