@@ -4,6 +4,8 @@
 #include "TrafficLight.h"
 #include "Intersection.h"
 #include "LightConfig.h"
+#include "Timer_Linux.h"
+#include "SmartTraffic.h"
 
 TEST_CASE("TC_1-1_TF_start"){
     TrafficLightLeft tf = TrafficLightLeft();

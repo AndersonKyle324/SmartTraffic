@@ -12,7 +12,7 @@ OBJS := $(patsubst $(SRC_DIR)/%,$(BIN_DIR)/%,$(SRCS:.cpp=.o))
 OBJS := $(OBJS:.c=.o)
 
 REG_OBJS := $(filter-out $(BIN_DIR)/SmartTrafficTest.o,$(OBJS))
-TEST_OBJS := $(filter-out $(BIN_DIR)/SmartTraffic.o,$(OBJS))
+TEST_OBJS := $(filter-out $(BIN_DIR)/main.o,$(OBJS))
 
 # Set the target executable name
 TARGET = $(BIN_DIR)/SmartTraffic.exe
