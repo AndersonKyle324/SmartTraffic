@@ -32,6 +32,7 @@ public:
 protected:
     int numRoads;                                               ///< Number of Roads in the Intersection
     std::array<Road*, Road::numRoadDirections> roads;           ///< Array of the Intersection Road pointers
+    std::array<Road*, Road::numRoadDirections> exitRoads;       ///< Array of the exit Road pointers associated with other Intersection objects if other Intersection objects are defined.
     std::array<bool, Road::numRoadDirections> expectedRoads;    ///< Array indicating what roads still need to added to the intersection for it to be positively validated.
     std::vector<LightConfig*> configSchedule;                   ///< The vector containing the LightConfig schedule in order.
     unsigned long configScheduleIdx;                            ///< The index in configSchedule indicating the LightConfig the Intersecion is currently on.
@@ -226,6 +227,12 @@ public:
     int addRoad(Road::RoadDirection dir, std::array<int, TurnOption::numTurnOptions> numLanesArr, int onDuration=DEFAULT_ON_DURATION);
 
     /**
+     * @brief Fills the vehicle queue for every TurnOption in every Road for this Intersection.
+     * 
+     * @return long the total number of vehicles actually added to the Intersection.
+     */
+    long addMaxVehicles();
+    /**
      * @brief Add "numVehiclesToAdd" vehicles to the vehicle queue on road "dir" for TurnOption::Type "turn". The queue is limited to 
      *  the size returned by turnOpt->getMaxNumVehicles().
      * 
@@ -247,8 +254,17 @@ public:
     */
     int setAllLightDurations(int onDur, int yellowDur=-1);
 
+    /**
+     * @brief Sets the "dir" Road pointer in exitRoads to "exitRd"
+     * 
+     * @param dir       the exit Road direction to be set
+     * @param exitRd    pointer to the Road object that "dir" will be set to. A NULL value is acceptable.
+     */
+    void setExitRoad(Road::RoadDirection dir, Road* exitRd);
+
     int getNumRoads(){ return numRoads; }
     Road* getRoad(Road::RoadDirection dir);
+    Road* getExitRoad(Road::RoadDirection dir);
     bool roadIsExpected(Road::RoadDirection dir);
     
     /**

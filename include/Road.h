@@ -50,7 +50,8 @@ protected:
 public:
     /**
      * @brief Construct a new Road object. Allocates memory for a TrafficLight for each TurnOption
-     *  with a number of lanes greater than 0.
+     *  with a number of lanes greater than 0. All TurnOptions will be initialized but not all will
+     *  necessarily be valid if a TurnOption is unavailable.
      * 
      * @param dir               Road direction
      * @param numLanesArr       Number of lanes for each TurnOption

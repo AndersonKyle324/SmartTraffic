@@ -12,6 +12,7 @@ Intersection::Intersection(){
 
     for(int i=0; i<Road::numRoadDirections; i++){
         roads[i] = NULL;
+        exitRoads[i] = NULL;
         expectedRoads[i] = false;
     }
 }
@@ -32,9 +33,19 @@ bool Intersection::validate(){
         return false;
     }
 
-    for(int i=0; i<Road::numRoadDirections; i++){
-        if(expectedRoads[i]){
-            std::cout << "Expecting a road facing " << expectedRoads[i] << '\n';
+    for(int dir=0; dir<Road::numRoadDirections; dir++){
+        Road* rd = getRoad((Road::RoadDirection)dir);
+        if(rd != NULL){
+            for(int turnType=0; turnType < TurnOption::numTurnOptions; turnType++){
+                if(rd->getTurnOption((TurnOption::Type)turnType)->isValid() && getExitRoad((Road::RoadDirection)dir) == NULL){
+                    std::cout << "Expecting an exit road facing " << (Road::RoadDirection)dir << std::endl;
+                    return false;
+                }
+            }
+        }
+
+        if(expectedRoads[dir]){
+            std::cout << "Expecting a road facing " << (Road::RoadDirection)dir << std::endl;
             return false;
         }
     }
@@ -232,7 +243,7 @@ bool Intersection::roadExists(Road::RoadDirection dir){
 Road* Intersection::getExitRoad(Road::RoadDirection startDir, TurnOption::Type turnOpt){
     Road::RoadDirection exitRoadDir = Road::exitRoadDirection(startDir, turnOpt);
 
-    return roads[exitRoadDir];
+    return exitRoads[exitRoadDir];
 }
 
 bool Intersection::newTurnIsPossible(Road::RoadDirection endRoadDir, int numNewLanes, bool* roadIsExpected){
@@ -293,6 +304,31 @@ int Intersection::addRoad(Road::RoadDirection dir, std::array<int, TurnOption::n
     return success;
 }
 
+long Intersection::addMaxVehicles(){
+    long totalVehiclesAdded = 0;
+    int numVehiclesToMax;
+
+    for(Road* rd : roads){
+        if(rd == NULL){
+            continue;
+        }
+
+        for(int turnType=0; turnType < TurnOption::numTurnOptions; turnType++){
+            TurnOption* turn = rd->getTurnOption((TurnOption::Type)turnType);
+
+            if(turn->isValid()){
+                numVehiclesToMax = turn->getMaxNumVehicles() - turn->getQueuedVehicles();
+
+                if(turn->addVehicles(numVehiclesToMax)){
+                    totalVehiclesAdded += numVehiclesToMax;
+                }
+            }
+        }
+    }
+
+    return totalVehiclesAdded;
+}
+
 bool Intersection::addVehicles(Road::RoadDirection dir, TurnOption::Type turn, int numVehiclesToAdd){
     Road* rd = getRoad(dir);
 
@@ -318,9 +354,19 @@ int Intersection::setAllLightDurations(int onDur, int yellowDir){
     return numRoadsSet;
 }
 
+void Intersection::setExitRoad(Road::RoadDirection dir, Road* exitRd){
+    Road::isValidRoadDirection(dir);
+    exitRoads[dir] = exitRd;
+}
+
 Road* Intersection::getRoad(Road::RoadDirection dir){
     Road::isValidRoadDirection(dir);
     return roads[dir];
+}
+
+Road* Intersection::getExitRoad(Road::RoadDirection dir){
+    Road::isValidRoadDirection(dir);
+    return exitRoads[dir];
 }
 
 bool Intersection::roadIsExpected(Road::RoadDirection dir){

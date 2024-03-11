@@ -4,7 +4,6 @@
 #include "SmartTraffic.h"
 
 int main(int argc, char *argv[]){
-    ///int numConfigs;
     int onDuration = 3;
     Intersection inter = Intersection();
 
@@ -13,30 +12,18 @@ int main(int argc, char *argv[]){
     inter.addRoad(Road::west, {2, 3, 1});
     inter.addRoad(Road::south, {1, 2, 3});
 
+    // In a full implementation these would be objects from another Intersection
+    inter.setExitRoad(Road::north, new Road(Road::north, {3,4,5}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::east, new Road(Road::east, {0,1,0}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::west, new Road(Road::west, {2,3,1}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::south, new Road(Road::south, {1,2,3}, DEFAULT_ON_DURATION));
+
     inter.schedule(LightConfig::doubleGreen, Road::north, onDuration);
     inter.schedule(LightConfig::doubleGreenLeft, Road::north, onDuration);
     inter.schedule(LightConfig::doubleGreen, Road::east, onDuration);
     inter.schedule(LightConfig::singleGreen, Road::west, onDuration);
 
-    /*
-    inter.start();
-    inter.print();
-
-    for(numConfigs=0; numConfigs<6; numConfigs++){
-        for(int i=0; i<onDuration; i++){
-            inter.tick();
-            inter.print();
-        }
-
-        for(int j=0; j<DEFAULT_YELLOW_DURATION; j++){
-            inter.tick();
-            inter.print();
-        }
-
-        inter.nextLightConfig();
-        inter.print();
-    }
-    */
+    inter.addMaxVehicles();
 
     commenceTraffic(inter, 50, 20, true);
 

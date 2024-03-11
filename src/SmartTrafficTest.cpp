@@ -503,6 +503,12 @@ TEST_CASE("TC_13-1_INT_tick"){
     inter.addRoad(Road::west, {2, 3, 1});
     inter.addRoad(Road::south, {1, 2, 3});
 
+    // In a full implementation these would be objects from another Intersection
+    inter.setExitRoad(Road::north, new Road(Road::north, {3,4,5}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::east, new Road(Road::east, {0,1,0}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::west, new Road(Road::west, {2,3,1}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::south, new Road(Road::south, {1,2,3}, DEFAULT_ON_DURATION));
+
     // North
     TrafficLight *left1 = inter.getLight(Road::north, TurnOption::left);
     TrafficLight *straight1 = inter.getLight(Road::north, TurnOption::straight);
@@ -593,6 +599,12 @@ TEST_CASE("TC_13-2_INT_tick_longerDuration"){
     inter.addRoad(Road::west, {2, 3, 1});
     inter.addRoad(Road::south, {1, 2, 3});
 
+    // In a full implementation these would be objects from another Intersection
+    inter.setExitRoad(Road::north, new Road(Road::north, {3,4,5}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::east, new Road(Road::east, {0,1,0}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::west, new Road(Road::west, {2,3,1}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::south, new Road(Road::south, {1,2,3}, DEFAULT_ON_DURATION));
+
     // West
     TrafficLight *left1 = inter.getLight(Road::west, TurnOption::left);
     TrafficLight *straight1 = inter.getLight(Road::west, TurnOption::straight);
@@ -665,6 +677,12 @@ TEST_CASE("TC_13-3_INT_tick_addVehicles"){
     inter.addRoad(Road::west, {2, 3, 1});
     inter.addRoad(Road::south, {1, 2, 3});
 
+    // In a full implementation these would be objects from another Intersection
+    inter.setExitRoad(Road::north, new Road(Road::north, {3,4,5}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::east, new Road(Road::east, {0,1,0}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::west, new Road(Road::west, {2,3,1}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::south, new Road(Road::south, {1,2,3}, DEFAULT_ON_DURATION));
+
     tempRd = inter.getRoad(Road::north);
     turnOptNorth = tempRd->getTurnOption(TurnOption::left);
     tempRd = inter.getRoad(Road::south);
@@ -716,6 +734,12 @@ TEST_CASE("TC_14-1_INT_schedule_LightConfig"){
     inter.addRoad(Road::west, {2, 3, 1});
     inter.addRoad(Road::south, {1, 2, 3});
 
+    // In a full implementation these would be objects from another Intersection
+    inter.setExitRoad(Road::north, new Road(Road::north, {3,4,5}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::east, new Road(Road::east, {0,1,0}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::west, new Road(Road::west, {2,3,1}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::south, new Road(Road::south, {1,2,3}, DEFAULT_ON_DURATION));
+
     // North (Road 1)
     TrafficLight *left1 = inter.getLight(Road::north, TurnOption::left);
     TrafficLight *straight1 = inter.getLight(Road::north, TurnOption::straight);
@@ -766,6 +790,12 @@ TEST_CASE("TC_14-2_INT_schedule_doubleGreenLeft"){
     inter.addRoad(Road::west, {2, 3, 1});
     inter.addRoad(Road::south, {1, 2, 3});
 
+    // In a full implementation these would be objects from another Intersection
+    inter.setExitRoad(Road::north, new Road(Road::north, {3,4,5}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::east, new Road(Road::east, {0,1,0}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::west, new Road(Road::west, {2,3,1}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::south, new Road(Road::south, {1,2,3}, DEFAULT_ON_DURATION));
+
     // East (Road 1)
     TrafficLight *left1 = inter.getLight(Road::east, TurnOption::left);
     
@@ -814,6 +844,12 @@ TEST_CASE("TC_14-3_INT_schedule_nextLightConfig"){
     inter.addRoad(Road::east, {1, 1, 0});
     inter.addRoad(Road::west, {2, 3, 1});
     inter.addRoad(Road::south, {1, 2, 3});
+
+    // In a full implementation these would be objects from another Intersection
+    inter.setExitRoad(Road::north, new Road(Road::north, {3,4,5}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::east, new Road(Road::east, {0,1,0}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::west, new Road(Road::west, {2,3,1}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::south, new Road(Road::south, {1,2,3}, DEFAULT_ON_DURATION));
 
     // East (Road 1)
     TrafficLight *left1 = inter.getLight(Road::east, TurnOption::left);
@@ -873,6 +909,12 @@ TEST_CASE("TC_14-3_INT_schedule_nextLightConfig_loop"){
     inter.addRoad(Road::east, {1, 1, 0});
     inter.addRoad(Road::west, {2, 3, 1});
     inter.addRoad(Road::south, {1, 2, 3});
+
+    // In a full implementation these would be objects from another Intersection
+    inter.setExitRoad(Road::north, new Road(Road::north, {3,4,5}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::east, new Road(Road::east, {0,1,0}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::west, new Road(Road::west, {2,3,1}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::south, new Road(Road::south, {1,2,3}, DEFAULT_ON_DURATION));
 
     // East (Road 1)
     TrafficLight *left1 = inter.getLight(Road::east, TurnOption::left);
@@ -949,6 +991,12 @@ TEST_CASE("TC_15-1_INT_addVehicles"){
     inter.addRoad(Road::east, {0, 1, 0});
     inter.addRoad(Road::west, {2, 3, 1});
     inter.addRoad(Road::south, {1, 2, 3});
+
+    // In a full implementation these would be objects from another Intersection
+    inter.setExitRoad(Road::north, new Road(Road::north, {3,4,5}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::east, new Road(Road::east, {0,1,0}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::west, new Road(Road::west, {2,3,1}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::south, new Road(Road::south, {1,2,3}, DEFAULT_ON_DURATION));
 
     /// This lane should support 20 vehicles
     turnOpt = inter.getRoad(Road::north)->getTurnOption(TurnOption::straight);

@@ -118,8 +118,9 @@ public:
     Type getType(){ return type; }
     TrafficLight* getLight(){ return light; }
     unsigned int getNumLanes(){ return numLanes; }
-    unsigned int getMaxNumVehicles(){ return maxVehiclesPerLane * numLanes; }
-    unsigned int getTimeToCross(){ return timeToCross; }
+    unsigned int getMaxVehiclesPerLane(){ return maxVehiclesPerLane; }
+    unsigned int getMaxNumVehicles(){ return getMaxVehiclesPerLane() * getNumLanes(); }
+    unsigned int getTimeToCross(){ return timeToCross * refreshRateHzGlobal; }
     unsigned int getQueuedVehicles(){ return queuedVehicles; }
     unsigned int getCurrentVehicleProgress(){ return currentVehicleProgress; }
     unsigned int getNumVehiclesCurrentlyCrossing(){ return numVehiclesCurrentlyCrossing; }
