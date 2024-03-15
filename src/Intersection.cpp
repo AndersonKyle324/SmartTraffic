@@ -260,7 +260,7 @@ bool Intersection::newTurnIsPossible(Road::RoadDirection endRoadDir, int numNewL
         *roadIsExpected = true;
     }
     else{
-        turnIsPossible = (numNewLanes <= roads[endRoadDir]->getNumLanes(TurnOption::straight));
+        turnIsPossible = (numNewLanes <= roads[endRoadDir]->getTotalNumLanes());
         *roadIsExpected = false;
     }
 

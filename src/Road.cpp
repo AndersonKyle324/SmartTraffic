@@ -161,6 +161,21 @@ int Road::setAllLightDurations(int onDur, int redDur, int yellowDur){
     return numLightsSet;
 }
 
+int Road::getTotalNumLanes(){
+    int totalNumLanes = 0;
+
+    for(int opt=0; opt < TurnOption::numTurnOptions; opt++){
+        if(turnOptions[opt] == NULL){
+            throw std::logic_error("Road constructor did not initialize all TurnOption pointers\n");
+            return -1;
+        }
+
+        totalNumLanes += turnOptions[opt]->getNumLanes();
+    }
+
+    return totalNumLanes;
+}
+
 int Road::getNumLanes(TurnOption::Type opt){
     TurnOption::isValidTurnOption(opt);
 

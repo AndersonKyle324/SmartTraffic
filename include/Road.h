@@ -138,6 +138,7 @@ public:
     int setAllLightDurations(int onDur, int redDur, int yellowDur=-1);
 
     RoadDirection getDirection(){ return direction; };
+    int getTotalNumLanes();
     int getNumLanes(TurnOption::Type opt);
     TurnOption* getTurnOption(TurnOption::Type opt);
     TrafficLight* getLight(TurnOption::Type opt);
