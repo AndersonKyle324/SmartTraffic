@@ -149,9 +149,18 @@ bool Intersection::schedule(LightConfig& config){
     return schedule(config.getConfigOption(), config.getDirection(), config.getDuration());
 }
 
+void Intersection::clearSchedule(){
+    configSchedule.clear();
+}
 
 bool Intersection::start(){
-    return setLightConfig(0);
+    bool configSuccess = setLightConfig(0);
+    
+    if( ! configSuccess){
+        throw std::runtime_error("Intersection::start() error, invalid LightConfig\n");
+    }
+
+    return configSuccess;
 }
 
 bool Intersection::setLightConfig(int idx){
@@ -182,6 +191,7 @@ bool Intersection::setLightConfig(int idx){
 }
 
 bool Intersection::nextLightConfig(){
+    bool configSuccess;
     configScheduleIdx++;
 
     if(configScheduleIdx >= configSchedule.size()){
@@ -189,7 +199,12 @@ bool Intersection::nextLightConfig(){
         configScheduleIdx = 0;
     }
 
-    return setLightConfig(configScheduleIdx);
+    configSuccess = setLightConfig(configScheduleIdx);
+    if( ! configSuccess){
+        throw std::runtime_error("Intersection::nextLightConfig() error, invalid LightConfig\n");
+    }
+
+    return configSuccess;
 }
 
 bool Intersection::doubleGreen(Road::RoadDirection dir, int onDuration){

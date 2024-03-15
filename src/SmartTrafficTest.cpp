@@ -981,6 +981,44 @@ TEST_CASE("TC_14-3_INT_schedule_nextLightConfig_loop"){
     CHECK(inter.getNumUnfinishedLights() == 0);
 }
 
+TEST_CASE("TC_14-4_INT_schedule_invalid_LightConfig"){
+    int onDuration = 1;
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {2, 0, 1});
+    inter.addRoad(Road::east, {0, 1, 1});
+    inter.addRoad(Road::west, {2, 3, 0});
+
+    // In a full implementation these would be objects from another Intersection
+    inter.setExitRoad(Road::east, new Road(Road::east, {0,1,0}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::west, new Road(Road::west, {1,1,1}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::south, new Road(Road::south, {2,0,0}, DEFAULT_ON_DURATION));
+
+    inter.schedule(LightConfig::doubleGreen, Road::north, onDuration);
+    CHECK_THROWS_AS( ! inter.start(), std::runtime_error);
+    inter.clearSchedule();
+    
+    inter.schedule(LightConfig::singleGreen, Road::south, onDuration);
+    CHECK_THROWS_AS( ! inter.start(), std::runtime_error);
+    inter.clearSchedule();
+    
+    /// Notice this one does not throw an error, bc the west road exists, it simply doesn't set the left turn light
+    inter.schedule(LightConfig::doubleGreenLeft, Road::east, onDuration);
+    CHECK(inter.start());
+    inter.clearSchedule();
+
+    inter.schedule(LightConfig::singleGreen, Road::north, onDuration);
+    CHECK(inter.start());
+    inter.clearSchedule();
+
+    inter.schedule(LightConfig::doubleGreen, Road::east, onDuration);
+    CHECK(inter.start());
+    inter.clearSchedule();
+
+    inter.schedule(LightConfig::singleGreen, Road::west, onDuration);
+    CHECK(inter.start());
+}
+
 TEST_CASE("TC_15-1_INT_addVehicles"){
     bool retVal;
     TurnOption* turnOpt;

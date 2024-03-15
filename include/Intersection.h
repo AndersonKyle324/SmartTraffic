@@ -140,6 +140,11 @@ public:
     bool schedule(LightConfig& config);
 
     /**
+     * @brief Removes all LightConfigs currently scheduled
+     */
+    void clearSchedule();
+
+    /**
      * @brief Begins light operation for the intersection, looping through all LightConfig's scheduled indefinetly.
      *
      * @return false if there is an error
