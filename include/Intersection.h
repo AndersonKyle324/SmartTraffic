@@ -51,6 +51,8 @@ protected:
      * @brief Advances vehicles currenly crossing intersection and adds new vehicles to cross
      *          if the right conditions are met.
      * 
+     * @note if the vehicle queue is empty, nothing is done.
+     * 
      * @param rd        The desired Road
      * @param turnOpt   The desired TurnOption in "rd"
      */

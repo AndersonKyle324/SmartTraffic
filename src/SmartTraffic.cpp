@@ -40,7 +40,7 @@ bool commenceTraffic(Intersection& inter, int refreshRateHz, int runTime, bool p
         totalSecondsElapsed++;
         secondsSinceLightConfigStart++;
 
-        if(secondsSinceLightConfigStart > inter.currentLightConfig()->getDuration()){
+        if(secondsSinceLightConfigStart > inter.currentLightConfig()->getTotalDuration()){
             inter.nextLightConfig();
             secondsSinceLightConfigStart = 0;
         }

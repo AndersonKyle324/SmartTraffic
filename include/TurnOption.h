@@ -102,8 +102,21 @@ public:
 
     /**
      * @brief The operations that take place when the next set of vehicles begin traveling throught the intersection.
+     * Increments exit queue by the number of vehicles that have just finished crossing.
+     * Adds vehicles into Intersection crossing only if light is green, not yellow/red.
+     * 
+     * @param exitTurnOpt   The TurnOption being exited onto, the exiting vehicles will be added to this queue.
      */
-    void nextVehiclesBeginCrossing();
+    void nextVehiclesBeginCrossing(TurnOption *exitTurnOpt);
+
+    /**
+     * @brief Operations to be taken when vehicles are still in the Intersection when the TrafficLight has turned red.
+     * Sets the currentVehicleProgress and numVehiclesCurrentlyCrossing to 0 and prints Traffic Jam indication.
+     * 
+     * @return true     There are indeed vehicles left in the Intersection 
+     * @return false    There are not vehicles left in the Intersection
+     */
+    bool vehiclesLeftInIntersection();
 
     /**
      * @brief Add "numVehiclesToAdd" vehicles to the queue. The queue is limited to 

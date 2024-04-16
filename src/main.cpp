@@ -5,6 +5,8 @@
 
 int main(int argc, char *argv[]){
     int onDuration = 3;
+    /// THIS RIGHT HERE IS WHY THE YELLOW DURATION WASNT WORKING, refreshRateHzGloabl wasn't being set until later and since yellow is never manually set it never updated with the proper rate!!
+    refreshRateHzGlobal = 50;
     Intersection inter = Intersection();
 
     inter.addRoad(Road::north, {3, 4, 5});

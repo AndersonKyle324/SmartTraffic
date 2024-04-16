@@ -32,6 +32,7 @@ public:
     Option getConfigOption() { return configOpt; }
     Road::RoadDirection getDirection(){ return direction; }
     int getDuration(){ return duration; }
+    int getTotalDuration(){ return duration + DEFAULT_YELLOW_DURATION; }
 
 };
 

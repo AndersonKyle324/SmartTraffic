@@ -49,25 +49,47 @@ void TurnOption::progressVehicles(){
 bool TurnOption::vehiclesAreCrossing(){
     return getCurrentVehicleProgress() > 0;
 }
-
-void TurnOption::nextVehiclesBeginCrossing(){
-    if(getQueuedVehicles() > getNumLanes()){
-        numVehiclesCurrentlyCrossing = getNumLanes();
+    
+void TurnOption::nextVehiclesBeginCrossing(TurnOption *exitTurnOpt){
+    /// If this is the first call to handleVehicles() for this green/yellow light, numVehiclesCurrentlyCrossing should be 0.
+    queuedVehicles -= getNumVehiclesCurrentlyCrossing();
+    getLight()->addVehiclesDirected(getNumVehiclesCurrentlyCrossing());
+    
+    /// Vehicles have finished crossing so they should be added to the exit TurnOption queue.
+    if( ! exitTurnOpt->addVehicles(getNumVehiclesCurrentlyCrossing())){
+        std::cout << "Traffic Jam! Exit TurnOption queue is full : TurnOption::nextVehiclesBeginCrossing()" << std::endl;
     }
-    else{
-        numVehiclesCurrentlyCrossing = getQueuedVehicles();
+
+    /// New vehicles should only enter the Intersection if light is green, not yellow/red.
+    if(getLight()->isGreen()){
+        if(getQueuedVehicles() > getNumLanes()){
+            numVehiclesCurrentlyCrossing = getNumLanes();
+        }
+        else{
+            numVehiclesCurrentlyCrossing = getQueuedVehicles();
+        }
+
+        currentVehicleProgress = getTimeToCross();
+    }
+}
+
+bool TurnOption::vehiclesLeftInIntersection(){
+    if( ! getLight()->isRed() || ! vehiclesAreCrossing()){
+        throw std::logic_error("TurnOption::vehiclesLeftInIntersection: Called when there are not vehicles in Intersection\n");
+        return false;
     }
 
-    queuedVehicles -= numVehiclesCurrentlyCrossing;
-    getLight()->addVehiclesDirected(numVehiclesCurrentlyCrossing);
+    currentVehicleProgress = 0;
+    numVehiclesCurrentlyCrossing = 0;
 
-    currentVehicleProgress = getTimeToCross();
+    std::cout << "Traffic Jam! There are vehicles left in the Intersection : TurnOption::vehiclesLeftInIntersection()" << std::endl;
+    return true;
 }
 
 bool TurnOption::addVehicles(int numVehiclesToAdd){
     unsigned int newQueuedVehiclesTotal = queuedVehicles + numVehiclesToAdd;
 
-    if(numVehiclesToAdd <= 0){
+    if(numVehiclesToAdd < 0){
         return false;
     }
 

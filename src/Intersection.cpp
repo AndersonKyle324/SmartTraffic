@@ -76,8 +76,8 @@ int Intersection::tick(){
 
             roadLight = turnOpt->getLight();
             
-            handleLightTick(roadLight);
             handleVehicles(rd, (TurnOption::Type)opt);
+            handleLightTick(roadLight);
         }
     }
 
@@ -105,29 +105,40 @@ void Intersection::handleLightTick(TrafficLight* light){
 
 void Intersection::handleVehicles(Road* rd, TurnOption::Type opt){
     TurnOption* turnOpt;
-    TurnOption* exitRoadStraight;
+    TurnOption* exitTurnOpt;
 
     turnOpt = rd->getTurnOption((TurnOption::Type)opt);
+
+    if(turnOpt->queueIsEmpty()){
+        /// No vehicles in queue, nothing to do.
+        return;
+    }
 
     /// Move along vehicles currently in intersection
     if(turnOpt->vehiclesAreCrossing()){
         turnOpt->progressVehicles();
     }
 
-    exitRoadStraight = getExitRoad(rd->getDirection(), turnOpt->getType())->getTurnOption(TurnOption::straight);
-    if(exitRoadStraight == NULL){
+    exitTurnOpt = getExitRoad(rd->getDirection(), turnOpt->getType())->getTurnOption(opt);
+    if(exitTurnOpt == NULL){
         throw std::logic_error("Exit Road in Intersection::handleVehicles() is NULL, Intersection is invalid\n");
         return;
     }
+    if( ! exitTurnOpt->isValid()){
+        /// This turnOpt does not exist in the exit Road, use the straight TurnOpt by default
+        exitTurnOpt = getExitRoad(rd->getDirection(), turnOpt->getType())->getTurnOption(TurnOption::straight);
+    }
 
-    /// Assumes a car will not enter the intersection if the light is yellow.
-    if( ! turnOpt->queueIsEmpty() && 
-        turnOpt->getLight()->isGreen() && 
+    if( ! turnOpt->getLight()->isRed() && 
         ! turnOpt->vehiclesAreCrossing() && 
-        /// *********** WARNING this only checks if the exitRoad's straight TurnOption queue is full. Should I assume a vehicle turning left will end in the left turnOption, a car turning straight will end in the straight turnOption etc??? Should I check if the whole road is full???
-        ! exitRoadStraight->queueIsFull())
+        ! exitTurnOpt->queueIsFull())
     {
-        turnOpt->nextVehiclesBeginCrossing();
+        turnOpt->nextVehiclesBeginCrossing(exitTurnOpt);
+    }
+    else if(turnOpt->getLight()->isRed() && 
+            turnOpt->vehiclesAreCrossing())
+    {
+        turnOpt->vehiclesLeftInIntersection();
     }
 }
 

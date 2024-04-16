@@ -114,6 +114,22 @@ public:
      * @return false light is yellow or red
      */
     bool isGreen(){ return (getColor() == green || getColor() == greenLeft || getColor() == greenRight); }
+    
+    /**
+     * @brief Checks if light is yellow
+     * 
+     * @return true light is yellow
+     * @return false light is any green or red
+     */
+    bool isYellow(){ return (getColor() == yellow); }
+
+    /**
+     * @brief Checks if light is red
+     * 
+     * @return true light is red
+     * @return false light is any green or yellow
+     */
+    bool isRed(){ return (getColor() == red); }
 
     /**
      * @brief Gets the onColor of the traffic light.

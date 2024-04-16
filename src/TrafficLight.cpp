@@ -7,6 +7,7 @@
 TrafficLight::TrafficLight(AvailableColors aOnColor, int onColorDur, int redDur) : TrafficLight(){
     onColor = aOnColor;
     setDuration(aOnColor, onColorDur);
+    setDuration(yellow, yellowDuration);
     setDuration(red, redDur);
 }
 

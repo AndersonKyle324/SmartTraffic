@@ -667,6 +667,7 @@ TEST_CASE("TC_13-2_INT_tick_longerDuration"){
 
 TEST_CASE("TC_13-3_INT_tick_addVehicles"){
     int numUnfinishedLights;
+    int onDuration = 2;
     TurnOption* turnOptNorth;
     TurnOption* turnOptSouth;
     Road* tempRd;
@@ -678,10 +679,10 @@ TEST_CASE("TC_13-3_INT_tick_addVehicles"){
     inter.addRoad(Road::south, {1, 2, 3});
 
     // In a full implementation these would be objects from another Intersection
-    inter.setExitRoad(Road::north, new Road(Road::north, {3,4,5}, DEFAULT_ON_DURATION));
-    inter.setExitRoad(Road::east, new Road(Road::east, {0,1,0}, DEFAULT_ON_DURATION));
-    inter.setExitRoad(Road::west, new Road(Road::west, {2,3,1}, DEFAULT_ON_DURATION));
-    inter.setExitRoad(Road::south, new Road(Road::south, {1,2,3}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::north, new Road(Road::north, {3,4,5}, onDuration));
+    inter.setExitRoad(Road::east, new Road(Road::east, {0,1,0}, onDuration));
+    inter.setExitRoad(Road::west, new Road(Road::west, {2,3,1}, onDuration));
+    inter.setExitRoad(Road::south, new Road(Road::south, {1,2,3}, onDuration));
 
     tempRd = inter.getRoad(Road::north);
     turnOptNorth = tempRd->getTurnOption(TurnOption::left);
@@ -692,21 +693,21 @@ TEST_CASE("TC_13-3_INT_tick_addVehicles"){
     inter.addVehicles(Road::north, TurnOption::left, 8);
     inter.addVehicles(Road::south, TurnOption::left, 2);
 
-    inter.doubleGreenLeft(Road::north, 2);
+    inter.doubleGreenLeft(Road::north, onDuration);
 
     numUnfinishedLights = inter.tick();
     CHECK(numUnfinishedLights == 2);
     CHECK(turnOptNorth->getCurrentVehicleProgress() == DEFAULT_TIME_TO_CROSS);
-    CHECK(turnOptNorth->getQueuedVehicles() == 5);
+    CHECK(turnOptNorth->getQueuedVehicles() == 8);
     CHECK(turnOptSouth->getCurrentVehicleProgress() == DEFAULT_TIME_TO_CROSS);
-    CHECK(turnOptSouth->getQueuedVehicles() == 1);
+    CHECK(turnOptSouth->getQueuedVehicles() == 2);
 
     numUnfinishedLights = inter.tick();
     CHECK(numUnfinishedLights == 2);
     CHECK(turnOptNorth->getCurrentVehicleProgress() == DEFAULT_TIME_TO_CROSS - 1);
-    CHECK(turnOptNorth->getQueuedVehicles() == 5);
+    CHECK(turnOptNorth->getQueuedVehicles() == 8);
     CHECK(turnOptSouth->getCurrentVehicleProgress() == DEFAULT_TIME_TO_CROSS - 1);
-    CHECK(turnOptSouth->getQueuedVehicles() == 1);
+    CHECK(turnOptSouth->getQueuedVehicles() == 2);
 
     // durationRemaining hits 0, should set to yellow
     for(int i=0; i<DEFAULT_YELLOW_DURATION; i++){
@@ -1060,3 +1061,88 @@ TEST_CASE("TC_15-1_INT_addVehicles"){
     retVal = inter.addVehicles(Road::south, TurnOption::straight, -1);
     CHECK(retVal == false);
 }
+
+TEST_CASE("TC_16-1_TurnOption_nextVehiclesBeginCrossing"){
+    TurnOption* turnOpt = new TurnOption(TurnOption::straight, 4, 5, 2, 4, 0);
+    TurnOption* exitTurnOpt = new TurnOption(TurnOption::straight, 4, 5, 2, 4, 0);
+    TrafficLight *light = turnOpt->getLight();
+
+    turnOpt->addVehicles(19);
+
+    turnOpt->nextVehiclesBeginCrossing(exitTurnOpt);
+
+    CHECK(turnOpt->getQueuedVehicles() == 19);
+    CHECK(exitTurnOpt->getQueuedVehicles() == 0);
+    CHECK(turnOpt->getLight()->getNumVehiclesDirected() == 0);
+    CHECK(turnOpt->getNumVehiclesCurrentlyCrossing() == 0);
+    CHECK(turnOpt->getCurrentVehicleProgress() == 0);
+
+    light->setColor(TrafficLight::green);
+    turnOpt->nextVehiclesBeginCrossing(exitTurnOpt);
+
+    CHECK(turnOpt->getQueuedVehicles() == 19);
+    CHECK(exitTurnOpt->getQueuedVehicles() == 0);
+    CHECK(turnOpt->getLight()->getNumVehiclesDirected() == 0);
+    CHECK(turnOpt->getNumVehiclesCurrentlyCrossing() == 4);
+    CHECK(turnOpt->getCurrentVehicleProgress() == 2);
+
+    turnOpt->nextVehiclesBeginCrossing(exitTurnOpt);
+
+    CHECK(turnOpt->getQueuedVehicles() == 15);
+    CHECK(exitTurnOpt->getQueuedVehicles() == 4);
+    CHECK(turnOpt->getLight()->getNumVehiclesDirected() == 4);
+    CHECK(turnOpt->getNumVehiclesCurrentlyCrossing() == 4);
+    CHECK(turnOpt->getCurrentVehicleProgress() == 2);
+
+    turnOpt->nextVehiclesBeginCrossing(exitTurnOpt);
+    turnOpt->nextVehiclesBeginCrossing(exitTurnOpt);
+    turnOpt->nextVehiclesBeginCrossing(exitTurnOpt);
+
+    CHECK(turnOpt->getQueuedVehicles() == 3);
+    CHECK(exitTurnOpt->getQueuedVehicles() == 16);
+    CHECK(turnOpt->getLight()->getNumVehiclesDirected() == 16);
+    CHECK(turnOpt->getNumVehiclesCurrentlyCrossing() == 3);
+    CHECK(turnOpt->getCurrentVehicleProgress() == 2);
+
+    light->setColor(TrafficLight::yellow);
+    turnOpt->nextVehiclesBeginCrossing(exitTurnOpt);
+
+    CHECK(turnOpt->getQueuedVehicles() == 0);
+    CHECK(exitTurnOpt->getQueuedVehicles() == 19);
+    CHECK(turnOpt->getLight()->getNumVehiclesDirected() == 19);
+    CHECK(turnOpt->getNumVehiclesCurrentlyCrossing() == 3);
+    CHECK(turnOpt->getCurrentVehicleProgress() == 2);
+}
+/*
+TEST_CASE("TC_17-1_INT_handleVehicles"){
+    bool retVal;
+    TurnOption *turnOpt;
+
+    Intersection inter = Intersection();
+
+    inter.addRoad(Road::north, {3, 4, 6});
+    inter.addRoad(Road::east, {0, 1, 0});
+    inter.addRoad(Road::west, {0, 3, 1});
+
+    // In a full implementation these would be objects from another Intersection
+    inter.setExitRoad(Road::north, new Road(Road::north, {3,4,6}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::east, new Road(Road::east, {0,1,0}, DEFAULT_ON_DURATION));
+    inter.setExitRoad(Road::west, new Road(Road::west, {0,3,1}, DEFAULT_ON_DURATION));
+
+    inter.validate();
+
+    /// This lane should support 20 vehicles
+    turnOpt = inter.getRoad(Road::north)->getTurnOption(TurnOption::straight);
+
+    retVal = inter.addVehicles(Road::north, TurnOption::straight, 6);
+    retVal = inter.addVehicles(Road::north, TurnOption::left, 6);
+
+    inter.handleVehicles(inter.getRoad(Road::north), TurnOption::left);
+    
+    CHECK(turnOpt->getQueuedVehicles() == 6);
+    CHECK(turnOpt->getNumVehiclesCurrentlyCrossing() == 0);
+    CHECK(turnOpt->getCurrentVehicleProgress() == 0);
+
+
+}
+*/
