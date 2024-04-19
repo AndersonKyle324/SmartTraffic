@@ -13,8 +13,7 @@ extern int refreshRateHzGlobal;
  * @class TrafficLight
  * @brief Represents a traffic light.
  * 
- * This class models a traffic light with various colors and durations as well as the lanes
- * that are directed by this light, including the vehicles queued in these lanes.
+ * This class models a traffic light with various colors and durations
  */
 class TrafficLight{
 
@@ -24,13 +23,13 @@ public:
      */
     enum AvailableColors {green, greenLeft, greenRight, yellow, red, numColors};
 
-    int yellowDuration = DEFAULT_YELLOW_DURATION; ///< The duration of the yellow light.
+    double yellowDuration = DEFAULT_YELLOW_DURATION; ///< The duration of the yellow light in seconds.
 
 protected:
     AvailableColors onColor; ///< The color direction of the traffic light.
     AvailableColors color; ///< The current color of the traffic light.
-    int durationRemaining; ///< The remaining duration for the current color in ticks.
-    std::array<int, numColors> colorDuration; ///< Array of durations for each color in ticks.
+    int ticksRemaining; ///< The remaining duration for the current color in ticks.
+    std::array<double, numColors> colorDuration; ///< Array of durations for each color in seconds.
     
     /// Variables associated with the lanes directed by this light.
     unsigned long numVehiclesDirected;   ///< The total number of vehicles directed by this light that have crossed through the intersection.
@@ -40,8 +39,8 @@ public:
      * @brief Default constructor for TrafficLight.
      */
     TrafficLight(): color(red), 
-                    durationRemaining(-1), 
-                    colorDuration{0, 0, 0, yellowDuration * refreshRateHzGlobal, -1}, 
+                    ticksRemaining(-1), 
+                    colorDuration{0.0, 0.0, 0.0, yellowDuration, -1.0}, 
                     numVehiclesDirected(0)
                     {};
 
@@ -53,7 +52,7 @@ public:
      * @param redDur     duration of the red light in seconds
      * @param lanes      number of lanes directed by this light
      */
-    TrafficLight(AvailableColors aOnColor, int onColorDur, int redDur);
+    TrafficLight(AvailableColors aOnColor, double onColorDur, double redDur);
 
     friend class Intersection; ///< Friend class Intersection.
 
@@ -63,42 +62,42 @@ public:
     void start();
 
     /**
-     * @brief Decreases the durationRemaining and updates the state of the TrafficLight.
+     * @brief Decreases the ticksRemaining and updates the state of the TrafficLight.
      * 
-     * If the durationRemaining is > 0, decrement durationRemaining. Then call nextState()
+     * If the ticksRemaining is > 0, decrement ticksRemaining. Then call nextState()
      *
-     * @return The updated durationRemaining value.
+     * @return The updated ticksRemaining value.
      *
-     * @warning if durationRemaining is negative, it will remain in the same state
+     * @warning if ticksRemaining is negative, it will remain in the same state
      */
     int tick();
 
     /**
      * @brief Determines and sets the next state of the TrafficLight based on the current color and duration.
      * 
-     * If the durationRemaining is 0, procede to the next state. 
+     * If the ticksRemaining is 0, procede to the next state. 
      *
      * @return The new color of the TrafficLight.
      * 
      * @throws std::out_of_range if TrafficLight reaches an unexpected color state.
-     * @warning if durationRemaining is negative, it will remain in the same state
+     * @warning if ticksRemaining is negative, it will remain in the same state
      */
     AvailableColors nextState();
 
     /**
-     * @brief Get the Duration Remaining
+     * @brief Get the time remaining until next state in ticks
      * 
-     * @return durationRemaining
+     * @return ticks remaining until next state
      */
-    int getDurationRemaining(){ return durationRemaining; };
+    int getTicksRemaining(){ return ticksRemaining; };
 
     /**
-     * @brief Gets the duration for a specific color.
+     * @brief Gets the duration for a specific color in seconds.
      *
      * @param durColor The color for which to get the duration.
      * @return The duration for the specified color.
      */
-    int getColorDuration(AvailableColors durColor){ return colorDuration[durColor]; };
+    double getColorDuration(AvailableColors durColor){ return colorDuration[durColor]; };
 
     /**
      * @brief Gets the current color of the traffic light.
@@ -149,23 +148,23 @@ public:
     int addVehiclesDirected(int numVehicles);
 
     /**
-     * @brief Sets the duration remaining to the duration for the current color.
+     * @brief Sets the ticks remaining to the duration for the current color.
      */
-    void resetDurationRemaining();
+    void resetTicksRemaining();
 
     /**
-     * @brief Sets the duration remaining to newDuration.
+     * @brief Sets the ticks remaining to newDuration * refresh rate.
      *
      * @param newDuration The new duration value in seconds.
      */
-    void setDurationRemaining(int newDuration){ durationRemaining = newDuration * refreshRateHzGlobal; }
+    void setTicksRemaining(double newDuration){ ticksRemaining = static_cast<int>(newDuration * refreshRateHzGlobal); }
 
     /**
-     * @brief Sets the durationRemaining to the duration of a specific color.
+     * @brief Sets the ticksRemaining to the duration of a specific color.
      *
-     * @param durColor The color of the duration to be set to durationRemaining.
+     * @param durColor The color of the duration to be set to ticksRemaining.
      */
-    void setDurationRemainingColor(AvailableColors durColor){ durationRemaining = colorDuration[durColor]; }
+    void setTicksRemainingColor(AvailableColors durColor){ ticksRemaining = static_cast<int>(colorDuration[durColor] * refreshRateHzGlobal); }
 
     /**
      * @brief Sets the duration for a specific color.
@@ -173,17 +172,17 @@ public:
      * @param durColor The color for which to set the duration.
      * @param duration The duration value. The number of seconds to stay on "durColor" color.
      */
-    void setDuration(AvailableColors durColor, int duration){ colorDuration[durColor] = duration * refreshRateHzGlobal; }
+    void setDuration(AvailableColors durColor, double duration){ colorDuration[durColor] = duration; }
 
     /**
-     * @brief Sets the duration for a specific color.
+     * @brief Sets the duration for the onColor.
      *
      * @param duration The duration value. The number of seconds to stay on onColor color.
      */
-    void setOnDuration(int duration){ setDuration(onColor, duration); }
+    void setOnDuration(double duration){ setDuration(onColor, duration); }
 
     /**
-     * @brief Sets the color of the traffic light.
+     * @brief Sets the current color of the traffic light.
      *
      * @param newColor The new color.
      */
@@ -191,7 +190,7 @@ public:
         isValidColor(newColor);
 
         color = newColor;
-        setDurationRemainingColor(newColor);
+        setTicksRemainingColor(newColor);
     }
 
     static bool isValidColor(const AvailableColors& aColor){

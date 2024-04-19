@@ -1,6 +1,6 @@
 #include "TurnOption.h"
     
-TurnOption::TurnOption(TurnOption::Type aType, unsigned int lanes, unsigned int maxNumVehiclesPerLane, unsigned int crossTime, int lightDuration, int lightRedDuration): TurnOption(){
+TurnOption::TurnOption(TurnOption::Type aType, unsigned int lanes, unsigned int maxNumVehiclesPerLane, unsigned int crossTime, double lightDuration, double lightRedDuration): TurnOption(){
     TrafficLight::AvailableColors lightAvailColor;
     
     type = aType;

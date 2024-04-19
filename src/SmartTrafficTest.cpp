@@ -23,15 +23,37 @@ TEST_CASE("TC_1-2_TF_setDuration"){
 
     tl.start();
 
-    CHECK(tl.getDurationRemaining() == 3); 
+    CHECK(tl.getTicksRemaining() == 3); 
 
     tl.setDuration(TrafficLight::green, 4);
     tl.start();
-    CHECK(tl.getDurationRemaining() == 4); 
+    CHECK(tl.getTicksRemaining() == 4); 
 
     tl.setOnDuration(5);
     tl.start();
-    CHECK(tl.getDurationRemaining() == 5); 
+    CHECK(tl.getTicksRemaining() == 5); 
+}
+
+TEST_CASE("TC_1-3_TF_setDuration_hz"){
+    TrafficLight tl = TrafficLight(TrafficLight::green, 3.5, -1.0);
+    refreshRateHzGlobal = 50;
+
+    CHECK(tl.getColorDuration(TrafficLight::green) == 3.5);
+    CHECK(tl.getColorDuration(TrafficLight::red) == -1.0);
+
+    tl.start();
+
+    CHECK(tl.getTicksRemaining() == 175); 
+
+    tl.setDuration(TrafficLight::green, 4.5);
+    tl.start();
+    CHECK(tl.getTicksRemaining() == 225); 
+
+    tl.setOnDuration(5.5);
+    tl.start();
+    CHECK(tl.getTicksRemaining() == 275); 
+
+    refreshRateHzGlobal = DEFAULT_REFRESH_RATE;
 }
 
 TEST_CASE("TC_2-1_TF_tick"){
@@ -46,22 +68,22 @@ TEST_CASE("TC_3-1_TF_nextState"){
 
     color = tf.nextState();
     CHECK(color == TrafficLight::greenLeft);
-    CHECK(tf.getDurationRemaining() == tf.getColorDuration(color));
+    CHECK(tf.getTicksRemaining() == tf.getColorDuration(color));
 
-    tf.setDurationRemaining(0);
+    tf.setTicksRemaining(0);
     color = tf.nextState();
     CHECK(color == TrafficLight::yellow);
-    CHECK(tf.getDurationRemaining() == tf.getColorDuration(color));
+    CHECK(tf.getTicksRemaining() == tf.getColorDuration(color));
 
-    tf.setDurationRemaining(0);
+    tf.setTicksRemaining(0);
     color = tf.nextState();
     CHECK(color == TrafficLight::red);
-    CHECK(tf.getDurationRemaining() == tf.getColorDuration(color));
+    CHECK(tf.getTicksRemaining() == tf.getColorDuration(color));
 
-    tf.setDurationRemaining(0);
+    tf.setTicksRemaining(0);
     color = tf.nextState();
     CHECK(color == TrafficLight::greenLeft);
-    CHECK(tf.getDurationRemaining() == tf.getColorDuration(color));
+    CHECK(tf.getTicksRemaining() == tf.getColorDuration(color));
 }
 
 TEST_CASE("TC_4-1_TF_TrafficLightLeft"){
@@ -116,40 +138,40 @@ TEST_CASE("TC_6-1_TF_tick"){
     durRem = tf.tick();
     // Go Yellow
     CHECK(durRem == tf.yellowDuration);
-    CHECK(tf.getDurationRemaining() == tf.yellowDuration);
+    CHECK(tf.getTicksRemaining() == tf.yellowDuration);
     CHECK(tf.getColor() == TrafficLight::yellow);
 
     for(int i=(tf.yellowDuration - 1); i>0; i--){
         // Make sure still yellow during whole dur
         durRem = tf.tick();
         CHECK(durRem == i);
-        CHECK(tf.getDurationRemaining() == i);
+        CHECK(tf.getTicksRemaining() == i);
         CHECK(tf.getColor() == TrafficLight::yellow);
     }
 
     durRem = tf.tick();
     // Go Red
     CHECK(durRem == redDur);
-    CHECK(tf.getDurationRemaining() == redDur);
+    CHECK(tf.getTicksRemaining() == redDur);
     CHECK(tf.getColor() == TrafficLight::red);
     for(int i=(redDur - 1); i>0; i--){
         // Make sure still red during whole dur
         durRem = tf.tick();
         CHECK(durRem == i);
-        CHECK(tf.getDurationRemaining() == i);
+        CHECK(tf.getTicksRemaining() == i);
         CHECK(tf.getColor() == TrafficLight::red);
     }
 
     durRem = tf.tick();
     // Go Left
     CHECK(durRem == leftDur);
-    CHECK(tf.getDurationRemaining() == leftDur);
+    CHECK(tf.getTicksRemaining() == leftDur);
     CHECK(tf.getColor() == TrafficLight::greenLeft);
 
     durRem = tf.tick();
     // Go back to yellow again
     CHECK(durRem == tf.yellowDuration);
-    CHECK(tf.getDurationRemaining() == tf.yellowDuration);
+    CHECK(tf.getTicksRemaining() == tf.yellowDuration);
     CHECK(tf.getColor() == TrafficLight::yellow);
 }
 
@@ -159,18 +181,18 @@ TEST_CASE("TC_6-2_TF_tick_no_change"){
     TrafficLightLeft tf = TrafficLightLeft(leftDur, redDur);
     int durRem;
     tf.start();
-    CHECK(tf.getDurationRemaining() == -1);
+    CHECK(tf.getTicksRemaining() == -1);
 
     // Start Left
     durRem = tf.tick();
     CHECK(durRem == -1);
-    CHECK(tf.getDurationRemaining() == -1);
+    CHECK(tf.getTicksRemaining() == -1);
     CHECK(tf.getColor() == TrafficLight::greenLeft);
 
     durRem = tf.tick();
     // Still Left
     CHECK(durRem == -1);
-    CHECK(tf.getDurationRemaining() == -1);
+    CHECK(tf.getTicksRemaining() == -1);
     CHECK(tf.getColor() == TrafficLight::greenLeft);
 }
 
@@ -352,9 +374,9 @@ TEST_CASE("TC_10-1_INT_singleGreen"){
     CHECK(inter.getLight(Road::north, TurnOption::straight)->getColor() == TrafficLight::green);
     CHECK(inter.getLight(Road::north, TurnOption::right)->getColor() == TrafficLight::greenRight);
 
-    CHECK(inter.getLight(Road::north, TurnOption::left)->getDurationRemaining() == 4);
-    CHECK(inter.getLight(Road::north, TurnOption::straight)->getDurationRemaining() == 4);
-    CHECK(inter.getLight(Road::north, TurnOption::right)->getDurationRemaining() == 4);
+    CHECK(inter.getLight(Road::north, TurnOption::left)->getTicksRemaining() == 4);
+    CHECK(inter.getLight(Road::north, TurnOption::straight)->getTicksRemaining() == 4);
+    CHECK(inter.getLight(Road::north, TurnOption::right)->getTicksRemaining() == 4);
 }
 
 TEST_CASE("TC_10-2_INT_singleGreen_missingTurns"){
@@ -531,29 +553,29 @@ TEST_CASE("TC_13-1_INT_tick"){
     CHECK(straight2->getColor() == TrafficLight::red);
     CHECK(right2->getColor() == TrafficLight::red);
 
-    CHECK(left1->getDurationRemaining() == 2);
-    CHECK(straight1->getDurationRemaining() == -1);
-    CHECK(right1->getDurationRemaining() == -1);
-    CHECK(left2->getDurationRemaining() == 2);
-    CHECK(straight2->getDurationRemaining() == -1);
-    CHECK(right2->getDurationRemaining() == -1);
+    CHECK(left1->getTicksRemaining() == 2);
+    CHECK(straight1->getTicksRemaining() == -1);
+    CHECK(right1->getTicksRemaining() == -1);
+    CHECK(left2->getTicksRemaining() == 2);
+    CHECK(straight2->getTicksRemaining() == -1);
+    CHECK(right2->getTicksRemaining() == -1);
 
     numUnfinishedLights = inter.tick();
 
     CHECK(numUnfinishedLights == 2);
 
-    CHECK(left1->getDurationRemaining() == 1);
-    CHECK(straight1->getDurationRemaining() == -1);
-    CHECK(right1->getDurationRemaining() == -1);
-    CHECK(left2->getDurationRemaining() == 1);
-    CHECK(straight2->getDurationRemaining() == -1);
-    CHECK(right2->getDurationRemaining() == -1);
+    CHECK(left1->getTicksRemaining() == 1);
+    CHECK(straight1->getTicksRemaining() == -1);
+    CHECK(right1->getTicksRemaining() == -1);
+    CHECK(left2->getTicksRemaining() == 1);
+    CHECK(straight2->getTicksRemaining() == -1);
+    CHECK(right2->getTicksRemaining() == -1);
 
     numUnfinishedLights = inter.tick();
 
     CHECK(numUnfinishedLights == 2);
 
-    // durationRemaining hits 0, should set to yellow
+    // ticksRemaining hits 0, should set to yellow
     CHECK(left1->getColor() == TrafficLight::yellow);
     CHECK(straight1->getColor() == TrafficLight::red);
     CHECK(right1->getColor() == TrafficLight::red);
@@ -561,12 +583,12 @@ TEST_CASE("TC_13-1_INT_tick"){
     CHECK(straight2->getColor() == TrafficLight::red);
     CHECK(right2->getColor() == TrafficLight::red);
 
-    CHECK(left1->getDurationRemaining() == left1->yellowDuration);
-    CHECK(straight1->getDurationRemaining() == -1);
-    CHECK(right1->getDurationRemaining() == -1);
-    CHECK(left2->getDurationRemaining() == left2->yellowDuration);
-    CHECK(straight2->getDurationRemaining() == -1);
-    CHECK(right2->getDurationRemaining() == -1);
+    CHECK(left1->getTicksRemaining() == left1->yellowDuration);
+    CHECK(straight1->getTicksRemaining() == -1);
+    CHECK(right1->getTicksRemaining() == -1);
+    CHECK(left2->getTicksRemaining() == left2->yellowDuration);
+    CHECK(straight2->getTicksRemaining() == -1);
+    CHECK(right2->getTicksRemaining() == -1);
 
     for(int i=0; i<left1->yellowDuration; i++){
         numUnfinishedLights = inter.tick();
@@ -581,12 +603,12 @@ TEST_CASE("TC_13-1_INT_tick"){
     CHECK(straight2->getColor() == TrafficLight::red);
     CHECK(right2->getColor() == TrafficLight::red);
 
-    CHECK(left1->getDurationRemaining() == -1);
-    CHECK(straight1->getDurationRemaining() == -1);
-    CHECK(right1->getDurationRemaining() == -1);
-    CHECK(left2->getDurationRemaining() == -1);
-    CHECK(straight2->getDurationRemaining() == -1);
-    CHECK(right2->getDurationRemaining() == -1);
+    CHECK(left1->getTicksRemaining() == -1);
+    CHECK(straight1->getTicksRemaining() == -1);
+    CHECK(right1->getTicksRemaining() == -1);
+    CHECK(left2->getTicksRemaining() == -1);
+    CHECK(straight2->getTicksRemaining() == -1);
+    CHECK(right2->getTicksRemaining() == -1);
 }
 
 TEST_CASE("TC_13-2_INT_tick_longerDuration"){
@@ -624,9 +646,9 @@ TEST_CASE("TC_13-2_INT_tick_longerDuration"){
     CHECK(straight1->getColor() == TrafficLight::green);
     CHECK(right1->getColor() == TrafficLight::greenRight);
 
-    CHECK(left1->getDurationRemaining() == onDuration);
-    CHECK(straight1->getDurationRemaining() == onDuration);
-    CHECK(right1->getDurationRemaining() == onDuration);
+    CHECK(left1->getTicksRemaining() == onDuration);
+    CHECK(straight1->getTicksRemaining() == onDuration);
+    CHECK(right1->getTicksRemaining() == onDuration);
 
     numUnfinishedLights = inter.getNumUnfinishedLights();
     CHECK(numUnfinishedLights == 3);
@@ -637,14 +659,14 @@ TEST_CASE("TC_13-2_INT_tick_longerDuration"){
 
     CHECK(numUnfinishedLights == 3);
 
-    // durationRemaining hits 0, should set to yellow
+    // ticksRemaining hits 0, should set to yellow
     CHECK(left1->getColor() == TrafficLight::yellow);
     CHECK(straight1->getColor() == TrafficLight::yellow);
     CHECK(right1->getColor() == TrafficLight::yellow);
 
-    CHECK(left1->getDurationRemaining() == yellowDuration);
-    CHECK(straight1->getDurationRemaining() == yellowDuration);
-    CHECK(right1->getDurationRemaining() == yellowDuration);
+    CHECK(left1->getTicksRemaining() == yellowDuration);
+    CHECK(straight1->getTicksRemaining() == yellowDuration);
+    CHECK(right1->getTicksRemaining() == yellowDuration);
 
     for(int i=0; i<yellowDuration; i++){
         CHECK(left1->getColor() == TrafficLight::yellow);
@@ -660,9 +682,9 @@ TEST_CASE("TC_13-2_INT_tick_longerDuration"){
     CHECK(straight1->getColor() == TrafficLight::red);
     CHECK(right1->getColor() == TrafficLight::red);
 
-    CHECK(left1->getDurationRemaining() == -1);
-    CHECK(straight1->getDurationRemaining() == -1);
-    CHECK(right1->getDurationRemaining() == -1);
+    CHECK(left1->getTicksRemaining() == -1);
+    CHECK(straight1->getTicksRemaining() == -1);
+    CHECK(right1->getTicksRemaining() == -1);
 }
 
 TEST_CASE("TC_13-3_INT_tick_addVehicles"){
@@ -709,7 +731,7 @@ TEST_CASE("TC_13-3_INT_tick_addVehicles"){
     CHECK(turnOptSouth->getCurrentVehicleProgress() == DEFAULT_TIME_TO_CROSS - 1);
     CHECK(turnOptSouth->getQueuedVehicles() == 2);
 
-    // durationRemaining hits 0, should set to yellow
+    // ticksRemaining hits 0, should set to yellow
     for(int i=0; i<DEFAULT_YELLOW_DURATION; i++){
         numUnfinishedLights = inter.tick();
     }

@@ -62,7 +62,7 @@ public:
                     numVehiclesCurrentlyCrossing(0)
                     {}
     
-    TurnOption(Type aType, unsigned int lanes, unsigned int maxNumVehiclesPerLane, unsigned int crossTime, int lightDuration, int lightRedDuration=-1);   
+    TurnOption(Type aType, unsigned int lanes, unsigned int maxNumVehiclesPerLane, unsigned int crossTime, double lightDuration, double lightRedDuration=-1.0);   
     ~TurnOption(){ delete light; }
     
     /**

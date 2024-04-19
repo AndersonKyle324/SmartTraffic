@@ -4,7 +4,7 @@
 
 #include "TrafficLight.h"
 
-TrafficLight::TrafficLight(AvailableColors aOnColor, int onColorDur, int redDur) : TrafficLight(){
+TrafficLight::TrafficLight(AvailableColors aOnColor, double onColorDur, double redDur) : TrafficLight(){
     onColor = aOnColor;
     setDuration(aOnColor, onColorDur);
     setDuration(yellow, yellowDuration);
@@ -22,13 +22,13 @@ void TrafficLight::start(){
 }
 
 int TrafficLight::tick(){
-    if(durationRemaining > 0){
-        durationRemaining--;
+    if(ticksRemaining > 0){
+        ticksRemaining--;
     }
 
     nextState();
 
-    return durationRemaining;
+    return ticksRemaining;
 }
 
 int TrafficLight::addVehiclesDirected(int numVehicles){
@@ -37,28 +37,28 @@ int TrafficLight::addVehiclesDirected(int numVehicles){
     return numVehiclesDirected;
 }
 
-void TrafficLight::resetDurationRemaining(){
-    setDurationRemainingColor(color);
+void TrafficLight::resetTicksRemaining(){
+    setTicksRemainingColor(color);
 }
 
 TrafficLight::AvailableColors TrafficLight::nextState(){
-    if(durationRemaining == 0){
+    if(ticksRemaining == 0){
         switch(color){
             case green:
             case greenLeft:
             case greenRight:
                 color = yellow;
-                setDurationRemainingColor(yellow);
+                setTicksRemainingColor(yellow);
                 break;
 
             case yellow:
                 color = red;
-                setDurationRemainingColor(red);
+                setTicksRemainingColor(red);
                 break;
 
             case red:
                 color = onColor;
-                setDurationRemainingColor(onColor);
+                setTicksRemainingColor(onColor);
                 break;
 
             default:
@@ -102,7 +102,7 @@ std::string TrafficLight::toString(){
     out << "<c:'";
     out << data.color;
     out << "' dr:";
-    out << data.durationRemaining;
+    out << data.ticksRemaining;
     out << " ";
     out << data.colorDuration[TrafficLight::green];
     out << "-";
@@ -120,35 +120,3 @@ std::string TrafficLight::toString(){
 
     return outStr;
 }
-
-/*std::ostream& operator<<(std::ostream &out, const TrafficLight& data){
-     This is for debugging
-    out << "<c:'";
-    out << data.color;
-    out << "' dr:";
-    out << data.durationRemaining;
-    out << " ";
-    out << data.colorDuration[TrafficLight::green];
-    out << "-";
-    out << data.colorDuration[TrafficLight::greenLeft];
-    out << "-";
-    out << data.colorDuration[TrafficLight::greenRight];
-    out << "-";
-    out << data.colorDuration[TrafficLight::yellow];
-    out << "-";
-    out << data.colorDuration[TrafficLight::red];
-    out << ">";
-    out << data.toString();
-
-    return out;
-}
-*/
-
-/*std::ostream& operator<<(std::ostream &out, const TrafficLightLeft& data){
-    out << "{Left ";
-    out << data.toString();
-    out << "}";
-
-    return out;
-}
-*/
