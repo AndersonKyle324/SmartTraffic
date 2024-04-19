@@ -22,17 +22,19 @@ public:
 protected:
     Option configOpt;               ///< The desired road configuration option
     Road::RoadDirection direction;  ///< The direction of the configOpt
-    int duration;                   ///< The duration to remain in this config
+    double duration;                ///< The duration to remain in this config in seconds
+    double yellowDuration;          ///< The duration to remain in yellow once the duration has been exceeded
 
 public:
-    LightConfig(Option interConfigOpt, Road::RoadDirection dir, int newDuration) : configOpt(interConfigOpt), direction(dir), duration(newDuration) {}
+    LightConfig(Option interConfigOpt, Road::RoadDirection dir, double newDuration, double newYellowDuration) : configOpt(interConfigOpt), direction(dir), duration(newDuration), yellowDuration(newYellowDuration) {}
     
     ~LightConfig() {}
 
     Option getConfigOption() { return configOpt; }
     Road::RoadDirection getDirection(){ return direction; }
-    int getDuration(){ return duration; }
-    int getTotalDuration(){ return duration + DEFAULT_YELLOW_DURATION; }
+    double getDuration(){ return duration; }
+    double getYellowDuration(){ return yellowDuration; }
+    double getTotalDuration(){ return duration + yellowDuration; }
 
 };
 

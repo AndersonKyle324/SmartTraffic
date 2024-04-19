@@ -132,13 +132,16 @@ public:
     /**
      * @brief Add a LightConfig to the end of the Intersections current configSchedule vector
      *
-     * @param configOpt     The LightConfig::Option specifying which type of configuration will be set
-     * @param direction     The RoadDirection of "configOpt". The road in which the config option is being applied to
-     * @param duration      The duration the Intersection will remain in this configuration
+     * @param configOpt         The LightConfig::Option specifying which type of configuration will be set
+     * @param direction         The RoadDirection of "configOpt". The road in which the config option is being applied to
+     * @param duration          The duration the Intersection will remain green in this configuration in seconds.
+     * @param yellowDuration    The duration the Intersection will remain yellow after "duration" has been exceeded in seconds.
+     * 
+     * @note The actual total duration will be ("duration" + yellowDuration)
      *
      * @return true upon success
     */
-    bool schedule(LightConfig::Option configOpt, Road::RoadDirection direction, int duration);
+    bool schedule(LightConfig::Option configOpt, Road::RoadDirection direction, double duration, double yellowDuration);
     bool schedule(LightConfig& config);
 
     /**
@@ -171,38 +174,41 @@ public:
     /**
      * @brief Sets two opposite roads green. Allowing both straight and right Road::turnOptions for both Roads.
      *
-     * @param dir           The direction to be set green, the direction opposite of this will also be set green.
-     * @param onDuration    The duration for this light config
+     * @param dir               The direction to be set green, the direction opposite of this will also be set green.
+     * @param onDuration        The duration for this light config
+     * @param yellowDuration    (optional) The yellow duration for this light config
      *
      * @warning if this road is missing the afformentioned lights, nothing will happen
      *
      * @return false if road in "dir" is missing or road opposite of "dir" is missing
     */
-    bool doubleGreen(Road::RoadDirection dir, int onDuration);
+    bool doubleGreen(Road::RoadDirection dir, double onDuration, double yellowDuration=DONT_SET);
 
     /**
      * @brief Sets one roads green, greenLeft, and greenRight. Allowing both straight, left, and right Road::turnOptions for this Road alone.
      *
-     * @param dir The direction to be set green
-     * @param onDuration    The duration for this light config
+     * @param dir               The direction to be set green
+     * @param onDuration        The duration for this light config
+     * @param yellowDuration    (optional) The yellow duration for this light config
      *
      * @warning if this road is missing the afformentioned lights, nothing will happen
      *
      * @return false if road "dir" is missing
     */
-    bool singleGreen(Road::RoadDirection dir, int onDuration);
+    bool singleGreen(Road::RoadDirection dir, double onDuration, double yellowDuration=DONT_SET);
 
     /**
      * @brief Sets two opposite roads greenLeft. Allowing left Road::turnOptions for both Roads.
      *
-     * @param dir The direction to be set greenLeft, the direction opposite of this will also be set greenLeft.
-     * @param onDuration    The duration for this light config
+     * @param dir               The direction to be set greenLeft, the direction opposite of this will also be set greenLeft.
+     * @param onDuration        The duration for this light config
+     * @param yellowDuration    (optional) The yellow duration for this light config
      *
      * @warning if this road is missing the afformentioned lights, nothing will happen
      *
      * @return false if road "dir" is missing or if road opposite of "dir" is missing
     */
-    bool doubleGreenLeft(Road::RoadDirection dir, int onDuration);
+    bool doubleGreenLeft(Road::RoadDirection dir, double onDuration, double yellowDuration=DONT_SET);
 
     /**
      * @brief Checks if road at "dir" is currently present in this Intersection
@@ -225,13 +231,14 @@ public:
     /**
      * @brief Creates new Road while checking to make sure it conforms with other Roads already present.
      * 
-     * @param dir           The direction the road is facing when cars are at a stop
-     * @param numLanesArr   The number of lanes for each TurnOption. Should be Road::numTurnOptions long.
-     * @param onDuration    (Optional)The duration of the onColor for all lights in this Road
+     * @param dir               The direction the road is facing when cars are at a stop
+     * @param numLanesArr       The number of lanes for each TurnOption. Should be Road::numTurnOptions long.
+     * @param onDuration        (Optional)The duration of the onColor for all lights in this Road in seconds
+     * @param yellowDuration    (Optional)The duration of the yellow light for all lights in this Road in seconds
      *
      * @return Success if road is added, else returns an IntersectionError value representing the specific error. 
      */
-    int addRoad(Road::RoadDirection dir, std::array<int, TurnOption::numTurnOptions> numLanesArr, int onDuration=DEFAULT_ON_DURATION);
+    int addRoad(Road::RoadDirection dir, std::array<int, TurnOption::numTurnOptions> numLanesArr, double onDuration=DEFAULT_ON_DURATION, double yellowDuration=DEFAULT_YELLOW_DURATION);
 
     /**
      * @brief Fills the vehicle queue for every TurnOption in every Road for this Intersection.

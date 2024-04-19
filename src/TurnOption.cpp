@@ -51,6 +51,7 @@ bool TurnOption::vehiclesAreCrossing(){
 }
     
 void TurnOption::nextVehiclesBeginCrossing(TurnOption *exitTurnOpt){
+    /// These operations need to be called for both green+yellow bc crossing vehicles might finish during a yellow light.
     /// If this is the first call to handleVehicles() for this green/yellow light, numVehiclesCurrentlyCrossing should be 0.
     queuedVehicles -= getNumVehiclesCurrentlyCrossing();
     getLight()->addVehiclesDirected(getNumVehiclesCurrentlyCrossing());
@@ -70,6 +71,11 @@ void TurnOption::nextVehiclesBeginCrossing(TurnOption *exitTurnOpt){
         }
 
         currentVehicleProgress = getTimeToCross();
+    }
+    else if(getLight()->isYellow()){
+        /// This means we finished during a yellow light, set numVehiclesCurrentlyCrossing to 0
+        /// so that vehicle queues dont continue to change for the duration of the yellow light.
+        numVehiclesCurrentlyCrossing = 0;
     }
 }
 
@@ -98,6 +104,7 @@ bool TurnOption::addVehicles(int numVehiclesToAdd){
         return true;
     }
     else{
+        std::cout << "veCross:" << getNumVehiclesCurrentlyCrossing() << " newTotal:" << newQueuedVehiclesTotal << " max:" << getMaxNumVehicles() << std::endl;
         queuedVehicles = getMaxNumVehicles();
         return false;
     }

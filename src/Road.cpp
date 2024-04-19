@@ -2,7 +2,7 @@
 
 #include "Road.h"
 
-Road::Road(RoadDirection dir, std::array<int, TurnOption::numTurnOptions> numLanesArr, int onDuration){
+Road::Road(RoadDirection dir, std::array<int, TurnOption::numTurnOptions> numLanesArr, double onDuration, double yellowDuration){
     isValidRoadDirection(dir);
     direction = dir;
 
@@ -90,9 +90,12 @@ Road::RoadDirection Road::roadOppositeOf(RoadDirection dir){
     return tempRd;
 }
 
-bool Road::startLight(TurnOption::Type turnOpt, int onDuration){
+bool Road::startLight(TurnOption::Type turnOpt, double onDuration, double yellowDuration){
     if(getLight(turnOpt) != NULL){
         getLight(turnOpt)->setOnDuration(onDuration);
+        if(yellowDuration != DONT_SET){
+            getLight(turnOpt)->setDuration(TrafficLight::yellow, yellowDuration);
+        }
         getLight(turnOpt)->start();
         return true;
     }
@@ -100,39 +103,39 @@ bool Road::startLight(TurnOption::Type turnOpt, int onDuration){
     return false;
 }
 
-int Road::setGreen(int onDuration){
+int Road::setGreen(double onDuration, double yellowDuration){
     int numLightsSet = 0;
 
-    numLightsSet += setGreenRight(onDuration);
+    numLightsSet += setGreenRight(onDuration, yellowDuration);
 
-    if(startLight(TurnOption::straight, onDuration)){
+    if(startLight(TurnOption::straight, onDuration, yellowDuration)){
         numLightsSet++;
     }
 
     return numLightsSet;
 }
 
-int Road::setGreenLeft(int onDuration){
+int Road::setGreenLeft(double onDuration, double yellowDuration){
     int numLightsSet = 0;
 
-    if(startLight(TurnOption::left, onDuration)){
+    if(startLight(TurnOption::left, onDuration, yellowDuration)){
         numLightsSet++;
     }
 
     return numLightsSet;
 }
 
-int Road::setGreenRight(int onDuration){
+int Road::setGreenRight(double onDuration, double yellowDuration){
     int numLightsSet = 0;
 
-    if(startLight(TurnOption::right, onDuration)){
+    if(startLight(TurnOption::right, onDuration, yellowDuration)){
         numLightsSet++;
     }
 
     return numLightsSet;
 }
 
-int Road::setAllLightDurations(int onDur, int redDur, int yellowDur){
+int Road::setAllLightDurations(double onDur, double redDur, double yellowDur){
     int numLightsSet = 0;
 
     if(onDur < -1 || redDur < -1 || yellowDur < -1){
@@ -150,7 +153,7 @@ int Road::setAllLightDurations(int onDur, int redDur, int yellowDur){
         if(tl != NULL){
             tl->setDuration(tl->getOnColor(), onDur);
             tl->setDuration(TrafficLight::red, redDur);
-            if(yellowDur != -1){
+            if(yellowDur != DONT_SET){
                 tl->setDuration(TrafficLight::yellow, yellowDur);
             }
 

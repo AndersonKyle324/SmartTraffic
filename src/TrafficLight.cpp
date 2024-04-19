@@ -73,19 +73,19 @@ TrafficLight::AvailableColors TrafficLight::nextState(){
 std::ostream& operator<<(std::ostream &out, TrafficLight::AvailableColors const& data){
     switch(data){
         case TrafficLight::green:
-            out << "green";
+            out << "G";
             break;
         case TrafficLight::greenLeft:
-            out << "greenLeft";
+            out << "GL";
             break;
         case TrafficLight::greenRight:
-            out << "greenRight";
+            out << "GR";
             break;
         case TrafficLight::yellow:
-            out << "yellow";
+            out << "Y";
             break;
         case TrafficLight::red:
-            out << "red";
+            out << "R";
             break;
         default:
             out << "Color NaN";

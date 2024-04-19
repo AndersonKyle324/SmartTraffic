@@ -41,11 +41,12 @@ protected:
      * @brief Calls start() on the "turnOpt" TrafficLight.
      *
      * @param turnOpt       the desired light to start
-     * @param onDuration    The onDuration to be set for the "turnOpt" light
+     * @param onDuration    The onDuration to be set for the "turnOpt" light in seconds
+     * @param yellowDuration    The duration of the yellow light in seconds
      * 
      * @return false if the light is unavailable (NULL)
     */
-    bool startLight(TurnOption::Type turnOpt, int onDuration);
+    bool startLight(TurnOption::Type turnOpt, double onDuration, double yellowDuration=DONT_SET);
 
 public:
     /**
@@ -55,9 +56,10 @@ public:
      * 
      * @param dir               Road direction
      * @param numLanesArr       Number of lanes for each TurnOption
-     * @param onDuration        The duration for the onColor for all lights in this Road
+     * @param onDuration        The duration for the onColor for all lights in this Road in seconds
+     * @param yellowDuration    The duration of the yellow light for all lights in this Road in seconds
      */
-    Road(RoadDirection dir, std::array<int, TurnOption::numTurnOptions> numLanesArr, int onDuration);
+    Road(RoadDirection dir, std::array<int, TurnOption::numTurnOptions> numLanesArr, double onDuration, double yellowDuration);
     
     /**
      * @brief Destroy the Road object. Deletes all TrafficLights in lights array.
@@ -101,41 +103,44 @@ public:
      * @brief Sets this Road's green light. Allows straight travel and right turns if available.
      *
      * @param onDuration    The onDuration to be set for the light(s)
+     * @param yellowDuration    (optional) The duration of the yellow light in seconds
      *
      * @return the number of lights set
     */
-    int setGreen(int onDuration);
+    int setGreen(double onDuration, double yellowDuration=DONT_SET);
 
     /**
      * @brief Sets this Road's greenLeft light. Allows left turns.
      *
      * @param onDuration    The onDuration to be set for the light(s)
+     * @param yellowDuration    (optional) The duration of the yellow light in seconds
      *
      * @return the number of lights set
     */
-    int setGreenLeft(int onDuration);
+    int setGreenLeft(double onDuration, double yellowDuration=DONT_SET);
 
     /**
      * @brief Sets this Road's greenRight light. Allows right turns.
      *
      * @param onDuration    The onDuration to be set for the light(s)
+     * @param yellowDuration    (optional) The duration of the yellow light in seconds
      *
      * @return the number of lights set
     */
-    int setGreenRight(int onDuration);
+    int setGreenRight(double onDuration, double yellowDuration=DONT_SET);
 
     /**
      * @brief Sets the on duration, red duration, and yellow duration for all lights in the road.
      * 
-     * @param onDur     the value to be set to all lights on duration
-     * @param redDur    the value to be set to all lights red duration
-     * @param yellowDur (optional) the value to be set to all lights yellow duration
+     * @param onDur     the value to be set to all lights on duration in seconds
+     * @param redDur    the value to be set to all lights red duration in seconds
+     * @param yellowDur (optional) the value to be set to all lights yellow duration in seconds
      * 
      * @note A duration of -1 means infinite time.
      *
      * @return the number of lights that were set
     */
-    int setAllLightDurations(int onDur, int redDur, int yellowDur=-1);
+    int setAllLightDurations(double onDur, double redDur, double yellowDur=DONT_SET);
 
     RoadDirection getDirection(){ return direction; };
     int getTotalNumLanes();

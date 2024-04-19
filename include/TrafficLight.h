@@ -8,6 +8,7 @@ extern int refreshRateHzGlobal;
 
 #define DEFAULT_ON_DURATION (1)
 #define DEFAULT_YELLOW_DURATION (1)
+#define DONT_SET (-1)
 
 /**
  * @class TrafficLight

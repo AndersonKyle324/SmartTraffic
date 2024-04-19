@@ -142,8 +142,8 @@ void Intersection::handleVehicles(Road* rd, TurnOption::Type opt){
     }
 }
 
-bool Intersection::schedule(LightConfig::Option configOpt, Road::RoadDirection direction, int duration){
-    LightConfig *interConfig = new LightConfig(configOpt, direction, duration);
+bool Intersection::schedule(LightConfig::Option configOpt, Road::RoadDirection direction, double duration, double yellowDuration){
+    LightConfig *interConfig = new LightConfig(configOpt, direction, duration, yellowDuration);
 
     try{
         configSchedule.push_back(interConfig);
@@ -157,7 +157,7 @@ bool Intersection::schedule(LightConfig::Option configOpt, Road::RoadDirection d
 }
 
 bool Intersection::schedule(LightConfig& config){
-    return schedule(config.getConfigOption(), config.getDirection(), config.getDuration());
+    return schedule(config.getConfigOption(), config.getDirection(), config.getDuration(), config.getYellowDuration());
 }
 
 void Intersection::clearSchedule(){
@@ -182,15 +182,15 @@ bool Intersection::setLightConfig(int idx){
 
     switch(config->getConfigOption()){
         case LightConfig::doubleGreen:
-            configSuccess = doubleGreen(config->getDirection(), config->getDuration());
+            configSuccess = doubleGreen(config->getDirection(), config->getDuration(), config->getYellowDuration());
             break;
 
         case LightConfig::singleGreen:
-            configSuccess = singleGreen(config->getDirection(), config->getDuration());
+            configSuccess = singleGreen(config->getDirection(), config->getDuration(), config->getYellowDuration());
             break;
 
         case LightConfig::doubleGreenLeft:
-            configSuccess = doubleGreenLeft(config->getDirection(), config->getDuration());
+            configSuccess = doubleGreenLeft(config->getDirection(), config->getDuration(), config->getYellowDuration());
             break;
 
         default:
@@ -218,7 +218,7 @@ bool Intersection::nextLightConfig(){
     return configSuccess;
 }
 
-bool Intersection::doubleGreen(Road::RoadDirection dir, int onDuration){
+bool Intersection::doubleGreen(Road::RoadDirection dir, double onDuration, double yellowDuration){
     Road *rd = roads[dir];
     Road *oppRd = roads[Road::roadOppositeOf(dir)];
 
@@ -227,26 +227,26 @@ bool Intersection::doubleGreen(Road::RoadDirection dir, int onDuration){
     }
 
     /// If light is set properly, add an unfinished light
-    numUnfinishedLights += rd->setGreen(onDuration);
-    numUnfinishedLights += oppRd->setGreen(onDuration);
+    numUnfinishedLights += rd->setGreen(onDuration, yellowDuration);
+    numUnfinishedLights += oppRd->setGreen(onDuration, yellowDuration);
     
     return true;
 }
 
-bool Intersection::singleGreen(Road::RoadDirection dir, int onDuration){
+bool Intersection::singleGreen(Road::RoadDirection dir, double onDuration, double yellowDuration){
     Road *rd = roads[dir];
 
     if(rd == NULL){
         return false;
     }
 
-    numUnfinishedLights += rd->setGreen(onDuration);
-    numUnfinishedLights += rd->setGreenLeft(onDuration);
+    numUnfinishedLights += rd->setGreen(onDuration, yellowDuration);
+    numUnfinishedLights += rd->setGreenLeft(onDuration, yellowDuration);
     
     return true;
 }
 
-bool Intersection::doubleGreenLeft(Road::RoadDirection dir, int onDuration){
+bool Intersection::doubleGreenLeft(Road::RoadDirection dir, double onDuration, double yellowDuration){
     Road *rd = roads[dir];
     Road *oppRd = roads[Road::roadOppositeOf(dir)];
 
@@ -254,8 +254,8 @@ bool Intersection::doubleGreenLeft(Road::RoadDirection dir, int onDuration){
         return false;
     }
 
-    numUnfinishedLights += rd->setGreenLeft(onDuration);
-    numUnfinishedLights += oppRd->setGreenLeft(onDuration);
+    numUnfinishedLights += rd->setGreenLeft(onDuration, yellowDuration);
+    numUnfinishedLights += oppRd->setGreenLeft(onDuration, yellowDuration);
     
     return true;
 }
@@ -312,7 +312,7 @@ bool Intersection::newRoadIsPossible(Road::RoadDirection dir, int numLeftLanes, 
     return roadIsPossible;
 }
 
-int Intersection::addRoad(Road::RoadDirection dir, std::array<int, TurnOption::numTurnOptions> numLanesArr, int onDuration){
+int Intersection::addRoad(Road::RoadDirection dir, std::array<int, TurnOption::numTurnOptions> numLanesArr, double onDuration, double yellowDuration){
     Road::isValidRoadDirection(dir);
 
     if(roads[dir] != NULL){
@@ -323,7 +323,7 @@ int Intersection::addRoad(Road::RoadDirection dir, std::array<int, TurnOption::n
         return turnNotPossible;
     }
 
-    roads[dir] = new Road(dir, numLanesArr, onDuration);
+    roads[dir] = new Road(dir, numLanesArr, onDuration, yellowDuration);
     expectedRoads[dir] = false;     /// If we were expecting this road before, we now no longer are.
     numRoads++;
 
@@ -497,18 +497,24 @@ void Intersection::printHelper(Road::RoadDirection dir, std::string& outStr){
         return;
     }
 
-    /// TrafficLights
+    /// TrafficLights / Exit Road Queues
     tempLight = getLight(dir, TurnOption::left);
+    tempTurnOpt = getExitRoad(dir)->getTurnOption(TurnOption::left);
     if(tempLight != NULL){
-        outStr.replace(slotLeft, tempLight->toString().size(), tempLight->toString());
+        vehicleString = tempLight->toString().append(" " + std::to_string(tempTurnOpt->getQueuedVehicles()) + "/" + std::to_string(tempTurnOpt->getMaxNumVehicles()));
+        outStr.replace(slotLeft, vehicleString.size(), vehicleString);
     }
     tempLight = getLight(dir, TurnOption::straight);
+    tempTurnOpt = getExitRoad(dir)->getTurnOption(TurnOption::straight);
     if(tempLight != NULL){
-        outStr.replace(slotStr, tempLight->toString().size(), tempLight->toString());
+        vehicleString = tempLight->toString().append(" " + std::to_string(tempTurnOpt->getQueuedVehicles()) + "/" + std::to_string(tempTurnOpt->getMaxNumVehicles()));
+        outStr.replace(slotStr, vehicleString.size(), vehicleString);
     }
     tempLight = getLight(dir, TurnOption::right);
+    tempTurnOpt = getExitRoad(dir)->getTurnOption(TurnOption::right);
     if(tempLight != NULL){
-        outStr.replace(slotRight, tempLight->toString().size(), tempLight->toString());
+        vehicleString = tempLight->toString().append(" " + std::to_string(tempTurnOpt->getQueuedVehicles()) + "/" + std::to_string(tempTurnOpt->getMaxNumVehicles()));
+        outStr.replace(slotRight, vehicleString.size(), vehicleString);
     }
 
     /// Vehicle Queues
@@ -517,18 +523,21 @@ void Intersection::printHelper(Road::RoadDirection dir, std::string& outStr){
         tempTurnOpt = tempRoad->getTurnOption(TurnOption::left);
         if(tempTurnOpt->isValid()){
             vehicleString = std::to_string(tempTurnOpt->getQueuedVehicles());
+            vehicleString.append("/" + std::to_string(tempTurnOpt->getMaxNumVehicles()));
             outStr.replace(vehicleLeft, vehicleString.size(), vehicleString);
         }
 
         tempTurnOpt = tempRoad->getTurnOption(TurnOption::straight);
         if(tempTurnOpt->isValid()){
             vehicleString = std::to_string(tempTurnOpt->getQueuedVehicles());
+            vehicleString.append("/" + std::to_string(tempTurnOpt->getMaxNumVehicles()));
             outStr.replace(vehicleStr, vehicleString.size(), vehicleString);
         }
 
         tempTurnOpt = tempRoad->getTurnOption(TurnOption::right);
         if(tempTurnOpt->isValid()){
             vehicleString = std::to_string(tempTurnOpt->getQueuedVehicles());
+            vehicleString.append("/" + std::to_string(tempTurnOpt->getMaxNumVehicles()));
             outStr.replace(vehicleRight, vehicleString.size(), vehicleString);
         }
     }
