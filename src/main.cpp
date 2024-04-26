@@ -18,10 +18,10 @@ int main(int argc, char *argv[]){
     inter.setExitRoad(Road::west, new Road(Road::west, {2,3,1}, DEFAULT_ON_DURATION, DEFAULT_YELLOW_DURATION));
     inter.setExitRoad(Road::south, new Road(Road::south, {1,2,3}, DEFAULT_ON_DURATION, DEFAULT_YELLOW_DURATION));
 
-    inter.schedule(LightConfig::doubleGreen, Road::north, onDuration, 3.0);
-    inter.schedule(LightConfig::doubleGreenLeft, Road::north, onDuration, DEFAULT_YELLOW_DURATION);
-    inter.schedule(LightConfig::doubleGreen, Road::east, onDuration, DEFAULT_YELLOW_DURATION);
-    inter.schedule(LightConfig::singleGreen, Road::west, onDuration, DEFAULT_YELLOW_DURATION);
+    inter.schedule(new DoubleGreen(Road::north, onDuration, 3.0));
+    inter.schedule(new DoubleGreenLeft(Road::north, onDuration, DEFAULT_YELLOW_DURATION));
+    inter.schedule(new DoubleGreen(Road::east, onDuration, DEFAULT_YELLOW_DURATION));
+    inter.schedule(new SingleGreen(Road::west, onDuration, DEFAULT_YELLOW_DURATION));
 
     inter.addMaxVehicles();
 

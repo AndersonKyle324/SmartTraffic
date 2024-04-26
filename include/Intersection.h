@@ -133,16 +133,12 @@ public:
      * @brief Add a LightConfig to the end of the Intersections current configSchedule vector
      *
      * @param configOpt         The LightConfig::Option specifying which type of configuration will be set
-     * @param direction         The RoadDirection of "configOpt". The road in which the config option is being applied to
-     * @param duration          The duration the Intersection will remain green in this configuration in seconds.
-     * @param yellowDuration    The duration the Intersection will remain yellow after "duration" has been exceeded in seconds.
      * 
      * @note The actual total duration will be ("duration" + yellowDuration)
      *
      * @return true upon success
     */
-    bool schedule(LightConfig::Option configOpt, Road::RoadDirection direction, double duration, double yellowDuration);
-    bool schedule(LightConfig& config);
+    bool schedule(LightConfig* config);
 
     /**
      * @brief Removes all LightConfigs currently scheduled

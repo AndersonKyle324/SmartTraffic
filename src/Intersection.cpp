@@ -142,11 +142,9 @@ void Intersection::handleVehicles(Road* rd, TurnOption::Type opt){
     }
 }
 
-bool Intersection::schedule(LightConfig::Option configOpt, Road::RoadDirection direction, double duration, double yellowDuration){
-    LightConfig *interConfig = new LightConfig(configOpt, direction, duration, yellowDuration);
-
+bool Intersection::schedule(LightConfig *config){
     try{
-        configSchedule.push_back(interConfig);
+        configSchedule.push_back(config);
     }
     catch(...){
         throw std::runtime_error("Intersection::schedule() error adding new LightConfig to schedule");
@@ -154,10 +152,6 @@ bool Intersection::schedule(LightConfig::Option configOpt, Road::RoadDirection d
     }
 
     return true;
-}
-
-bool Intersection::schedule(LightConfig& config){
-    return schedule(config.getConfigOption(), config.getDirection(), config.getDuration(), config.getYellowDuration());
 }
 
 void Intersection::clearSchedule(){
@@ -175,28 +169,12 @@ bool Intersection::start(){
 }
 
 bool Intersection::setLightConfig(int idx){
-    bool configSuccess = false;
+    bool configSuccess;
     LightConfig *config;
     
     config = configSchedule.at(idx);
 
-    switch(config->getConfigOption()){
-        case LightConfig::doubleGreen:
-            configSuccess = doubleGreen(config->getDirection(), config->getDuration(), config->getYellowDuration());
-            break;
-
-        case LightConfig::singleGreen:
-            configSuccess = singleGreen(config->getDirection(), config->getDuration(), config->getYellowDuration());
-            break;
-
-        case LightConfig::doubleGreenLeft:
-            configSuccess = doubleGreenLeft(config->getDirection(), config->getDuration(), config->getYellowDuration());
-            break;
-
-        default:
-            throw std::out_of_range("Intersection::nextLightConfig() encountered an unhandled LightConfig::Option");
-            break;
-    }
+    configSuccess = config->start(this);
 
     return configSuccess;
 }

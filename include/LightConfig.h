@@ -12,30 +12,44 @@
 class LightConfig{
 public:
 
-    /**
-     * @brief The possible configurations for a Road or Roads in an Intersection.
-     *
-     * @warning if a new option is added, a new switch case must be added to Intersection::setLightConfig()
-    */
-    enum Option {doubleGreen, singleGreen, doubleGreenLeft, numConfigOptions};
-
 protected:
-    Option configOpt;               ///< The desired road configuration option
     Road::RoadDirection direction;  ///< The direction of the configOpt
     double duration;                ///< The duration to remain in this config in seconds
     double yellowDuration;          ///< The duration to remain in yellow once the duration has been exceeded
 
 public:
-    LightConfig(Option interConfigOpt, Road::RoadDirection dir, double newDuration, double newYellowDuration) : configOpt(interConfigOpt), direction(dir), duration(newDuration), yellowDuration(newYellowDuration) {}
+    LightConfig(Road::RoadDirection dir, double newDuration, double newYellowDuration) : direction(dir), duration(newDuration), yellowDuration(newYellowDuration) {}
     
     ~LightConfig() {}
 
-    Option getConfigOption() { return configOpt; }
+    virtual bool start(Intersection *inter) = 0;
+
     Road::RoadDirection getDirection(){ return direction; }
     double getDuration(){ return duration; }
     double getYellowDuration(){ return yellowDuration; }
     double getTotalDuration(){ return duration + yellowDuration; }
 
+};
+
+class DoubleGreen : public LightConfig{
+public:
+    DoubleGreen(Road::RoadDirection dir, double newDuration, double newYellowDuration) : LightConfig{dir, newDuration, newYellowDuration} {}
+
+    bool start(Intersection *inter);
+};
+
+class SingleGreen : public LightConfig{
+public:
+    SingleGreen(Road::RoadDirection dir, double newDuration, double newYellowDuration) : LightConfig{dir, newDuration, newYellowDuration} {}
+
+    bool start(Intersection *inter);
+};
+
+class DoubleGreenLeft : public LightConfig{
+public:
+    DoubleGreenLeft(Road::RoadDirection dir, double newDuration, double newYellowDuration) : LightConfig{dir, newDuration, newYellowDuration} {}
+
+    bool start(Intersection *inter);
 };
 
 #endif
