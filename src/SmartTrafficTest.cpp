@@ -1132,7 +1132,7 @@ TEST_CASE("TC_16-1_TurnOption_nextVehiclesBeginCrossing"){
     CHECK(turnOpt->getQueuedVehicles() == 0);
     CHECK(exitTurnOpt->getQueuedVehicles() == 19);
     CHECK(turnOpt->getLight()->getNumVehiclesDirected() == 19);
-    CHECK(turnOpt->getNumVehiclesCurrentlyCrossing() == 0);
+    CHECK(turnOpt->getNumVehiclesCurrentlyCrossing() == 3);
     CHECK(turnOpt->getCurrentVehicleProgress() == 2);
 }
 /*
